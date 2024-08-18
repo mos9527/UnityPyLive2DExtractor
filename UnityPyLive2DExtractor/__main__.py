@@ -4,14 +4,17 @@ import json
 import pathlib
 import UnityPy
 import io
+from zlib import crc32
 from typing import List
 from sssekai.fmt import moc3,motion3
 from UnityPy.enums import ClassIDType
 from UnityPy.classes import MonoBehaviour, Texture2D, PPtr
 from UnityPy.math import Vector2, Vector4
 from UnityPy.streams import EndianBinaryReader
-from logging import getLogger, basicConfig
-logger = getLogger(__name__)
+from logging import getLogger
+import coloredlogs
+from . import __version__
+logger = getLogger('UnityPyLive2DExtractor')
 class CubismRenderer(MonoBehaviour):
     LocalSortingOrder: int
     Color : Vector4
@@ -175,18 +178,22 @@ class CubismPhysicsController(MonoBehaviour):
                 "VertexCount": sum((len(x.Particles) for x in self.Rig.SubRigs)),
                 "Fps": 60,
                 "EffectiveForces": {"Gravity": {"X": 0,"Y": -1},"Wind": {"X": 0,"Y": 0}},
-                "PhysicsDictionary":[{"Id":"PhysicsSetting%d"%(i+1), "Name":"%d"%(i+1)} for i, _ in enumerate(phy.Rig.SubRigs)]
+                "PhysicsDictionary":[{"Id":"PhysicsSetting%d"%(i+1), "Name":"%d"%(i+1)} for i, _ in enumerate(self.Rig.SubRigs)]
             },
             'PhysicsSettings': self.Rig.dump()
         }
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='General purpose Unity Live2D asset recovery tool')
+def __main__():
+    parser = argparse.ArgumentParser(description='UnityPyLive2D Extractor v%d.%d.%d' % __version__)
     parser.add_argument('infile', help='Input file/directory to extract from')
     parser.add_argument('outdir', help='Output directory to extract to')
     parser.add_argument('--log-level', help='Set logging level', default='DEBUG', choices=['DEBUG','INFO','WARNING','ERROR','CRITICAL'])
     parser.add_argument('--no-anim', help='Do not extract animations', action='store_true')
     args = parser.parse_args()
-    basicConfig(level=args.log_level, format='%(asctime)s - %(levelname)s - %(message)s')
+    coloredlogs.install(
+        level=args.log_level,
+        fmt="%(asctime)s %(name)s [%(levelname).4s] %(message)s",
+        isatty=True
+    )
     os.makedirs(args.outdir, exist_ok=True)
     env = UnityPy.load(args.infile)
     # Helpers
@@ -239,8 +246,7 @@ if __name__ == '__main__':
         model3['FileReferences']['Textures'] = sorted(model3['FileReferences']['Textures'])
         with open(os.path.join(args.outdir, name + '.moc3'),'wb') as f:
             f.write(moc.Binary) and logger.debug('... Mesh saved: %s' % f.name)
-            if not args.no_anim:
-                from zlib import crc32
+            if not args.no_anim:                
                 parts, parameters = moc3.read_moc3(io.BytesIO(moc.Binary))
                 for s in parts:
                     path = 'Parts/' + s
@@ -259,3 +265,6 @@ if __name__ == '__main__':
             logger.info('Parsing animation %s' % a.name)
             with open(os.path.join(args.outdir, 'animations', a.name + '.motion3.json'),'w', encoding='utf-8') as f:
                 json.dump(motion3.unity_animation_clip_to_motion3(a, CRC_HASH_TABLE),f, indent=4, ensure_ascii=False) or logger.debug('... Animation saved: %s' % f.name)
+
+if __name__ == '__main__':
+    __main__()
