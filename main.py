@@ -5,11 +5,11 @@ import pathlib
 import UnityPy
 import io
 from typing import List
+from sssekai.fmt import moc3,motion3
 from UnityPy.enums import ClassIDType
 from UnityPy.classes import MonoBehaviour, Texture2D, PPtr
 from UnityPy.math import Vector2, Vector4
 from UnityPy.streams import EndianBinaryReader
-from sssekai.fmt import moc3,motion3
 from logging import getLogger, basicConfig
 logger = getLogger(__name__)
 class CubismRenderer(MonoBehaviour):
