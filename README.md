@@ -1,4 +1,8 @@
 # UnityPyLive2DExtractor
+[![Windows Build](https://github.com/mos9527/UnityPyLive2DExtractor/actions/workflows/python-publish.yml/badge.svg)](https://github.com/mos9527/UnityPyLive2DExtractor/blob/main/.github/workflows/python-publish.yml) 
+[![Releases](https://img.shields.io/github/downloads/mos9527/UnityPyLive2DExtractor/total.svg)](https://GitHub.com/mos9527/UnityPyLive2DExtractor/releases/) 
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black) 
+
 General purpose, single-file Unity [Live2D](https://www.live2d.com/) Asset recovery tool built w/ [UnityPy](https://github.com/K0lb3/UnityPy) and [sssekai](https://github.com/mos9527/sssekai)
 
 As the name suggests, this project is heavily inspired by [Perfare/UnityLive2DExtractor](https://github.com/Perfare/UnityLive2DExtractor). With a few key differences:
