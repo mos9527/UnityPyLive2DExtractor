@@ -7,11 +7,12 @@ As the name suggests, this project is heavily inspired by [Perfare/UnityLive2DEx
 
 ## Installation
 - Install the script from PyPI
+    - It's **highly** recommended that you install it in a virtual environment. (e.g. via `pipx`).
+    - Since as of now, the script only supports `"sssekai<=0.3.12", "UnityPy<1.20"`
 ```bash
-pip install UnityPyLive2DExtractor
+pipx install UnityPyLive2DExtractor
 ```
-- Alternatively, you can also download/copy-paste the script from [`__main__.py`](https://github.com/mos9527/UnityPyLive2DExtractor/blob/main/UnityPyLive2DExtractor/__main__.py) and run it as is, with requisite dependency (i.e. `sssekai`) installed. Python 3.10+ Required.
-- Or, you can use the pre-built executables for Windows from [Releases](https://github.com/mos9527/UnityPyLive2DExtractor/releases/)
+- Or, you can use the pre-built executables for Windows from [Releases](https://github.com/mos9527/UnityPyLive2DExtractor/releases/).
 ## Usage
 ```bash
 UnityPyLive2DExtractor <input> <output>

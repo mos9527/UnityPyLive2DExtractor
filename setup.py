@@ -1,9 +1,9 @@
-import sys,os
+import sys, os
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import setuptools, UnityPyLive2DExtractor
 
-with open("README.md", "r", encoding='utf-8') as fh:
+with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setuptools.setup(
@@ -21,7 +21,11 @@ setuptools.setup(
         "License :: OSI Approved :: Apache Software License",
         "Operating System :: OS Independent",
     ],
-    install_requires=["sssekai"],
-    entry_points={"console_scripts": ["UnityPyLive2DExtractor = UnityPyLive2DExtractor.__main__:__main__"]},
+    install_requires=["sssekai<=0.3.12", "UnityPy<1.20"],
+    entry_points={
+        "console_scripts": [
+            "UnityPyLive2DExtractor = UnityPyLive2DExtractor.__main__:__main__"
+        ]
+    },
     python_requires=">=3.10",
 )
