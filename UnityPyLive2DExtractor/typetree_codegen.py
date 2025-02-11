@@ -150,7 +150,7 @@ def __main__():
     # fmt: on
     # Emit by topo order
     clazzes = list()
-    dp = defaultdict(lambda: 0)
+    dp = defaultdict(lambda: -1)
     for clazz in topo:
         fields = TYPETREE_DEFS_BY_NAME.get(clazz, None)
         if not fields:
@@ -167,7 +167,7 @@ def __main__():
             emit_line(f"class {clazz}({parent}):")
             # Generated typedefs are guaranteed to be flat in hierarchy
             # Recursive ones are defined by previous/topo order
-            if not dp[parent]:
+            if dp[parent] == -1:
                 # Reuse parent's fields with best possible effort
                 # This is a heuristic and may not be correct
                 if pa_dep1 := getattr(classes, parent, None):
