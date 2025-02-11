@@ -3,7 +3,11 @@
 from typing import List, Union, Optional, TypeVar
 from UnityPy.classes import *
 from UnityPy.classes.math import (ColorRGBA, Matrix3x4f, Matrix4x4f, Quaternionf, Vector2f, Vector3f, Vector4f, float3, float4,)
-from attrs import field as attrs_field
+from attrs import field as attrs_field, define as attrs_define
+def unitypy_define_ex(cls):
+    # Allows deep inheritance and private fields. See `declare_field` in the codegen
+    cls = attrs_define(cls, slots=True, kw_only=True)
+    return cls
 TYPETREE_DEFS = {
     "CubismTaskHandler": [
         {
@@ -13538,184 +13542,184 @@ TYPETREE_DEFS = {
         }
     ]
 }
-@unitypy_define
+@unitypy_define_ex
 class CubismTaskHandler(MonoBehaviour):
 	pass
 
-@unitypy_define
+@unitypy_define_ex
 class ArrayExtensionMethods(MonoBehaviour):
 	pass
 
-@unitypy_define
+@unitypy_define_ex
 class ComponentExtensionMethods(MonoBehaviour):
 	pass
 
-@unitypy_define
+@unitypy_define_ex
 class CubismDrawable(MonoBehaviour):
-	_unmanagedIndex : int = attrs_field(alias='_unmanagedIndex', init=False)
+	_unmanagedIndex : int = attrs_field(alias='_unmanagedIndex', init=True)
 
-@unitypy_define
+@unitypy_define_ex
 class CubismDynamicDrawableData(MonoBehaviour):
 	pass
 
-@unitypy_define
+@unitypy_define_ex
 class CubismLogging(MonoBehaviour):
 	pass
 
-@unitypy_define
+@unitypy_define_ex
 class CubismMoc(MonoBehaviour):
-	_bytes : bytes = attrs_field(alias='_bytes', init=False)
+	_bytes : bytes = attrs_field(alias='_bytes', init=True)
 
-@unitypy_define
+@unitypy_define_ex
 class CubismModel(MonoBehaviour):
-	_moc : PPtr[CubismMoc] = attrs_field(alias='_moc', init=False)
+	_moc : PPtr[CubismMoc] = attrs_field(alias='_moc', init=True)
 
-@unitypy_define
+@unitypy_define_ex
 class CubismParameter(MonoBehaviour):
-	_unmanagedIndex : int = attrs_field(alias='_unmanagedIndex', init=False)
+	_unmanagedIndex : int = attrs_field(alias='_unmanagedIndex', init=True)
 	Value : float
 
-@unitypy_define
+@unitypy_define_ex
 class CubismPart(MonoBehaviour):
-	_unmanagedIndex : int = attrs_field(alias='_unmanagedIndex', init=False)
+	_unmanagedIndex : int = attrs_field(alias='_unmanagedIndex', init=True)
 	Opacity : float
 
-@unitypy_define
+@unitypy_define_ex
 class CubismTaskableModel(MonoBehaviour):
 	pass
 
-@unitypy_define
+@unitypy_define_ex
 class CubismTaskQueue(MonoBehaviour):
 	pass
 
-@unitypy_define
+@unitypy_define_ex
 class GameObjectExtensionMethods(MonoBehaviour):
 	pass
 
-@unitypy_define
+@unitypy_define_ex
 class ICubismTask(MonoBehaviour):
 	pass
 
-@unitypy_define
+@unitypy_define_ex
 class ByteExtensionMethods(MonoBehaviour):
 	pass
 
-@unitypy_define
+@unitypy_define_ex
 class CubismCoreDll(MonoBehaviour):
 	pass
 
-@unitypy_define
+@unitypy_define_ex
 class CubismUnmanagedByteArrayView(MonoBehaviour):
 	pass
 
-@unitypy_define
+@unitypy_define_ex
 class CubismUnmanagedCanvasInformation(MonoBehaviour):
 	pass
 
-@unitypy_define
+@unitypy_define_ex
 class CubismUnmanagedDrawables(MonoBehaviour):
 	pass
 
-@unitypy_define
+@unitypy_define_ex
 class CubismUnmanagedFloatArrayView(MonoBehaviour):
 	pass
 
-@unitypy_define
+@unitypy_define_ex
 class CubismUnmanagedIntArrayView(MonoBehaviour):
 	pass
 
-@unitypy_define
+@unitypy_define_ex
 class CubismUnmanagedMemory(MonoBehaviour):
 	pass
 
-@unitypy_define
+@unitypy_define_ex
 class CubismUnmanagedMoc(MonoBehaviour):
 	pass
 
-@unitypy_define
+@unitypy_define_ex
 class CubismUnmanagedModel(MonoBehaviour):
 	pass
 
-@unitypy_define
+@unitypy_define_ex
 class CubismUnmanagedParameters(MonoBehaviour):
 	pass
 
-@unitypy_define
+@unitypy_define_ex
 class CubismUnmanagedParts(MonoBehaviour):
 	pass
 
-@unitypy_define
+@unitypy_define_ex
 class CubismUnmanagedUshortArrayView(MonoBehaviour):
 	pass
 
-@unitypy_define
+@unitypy_define_ex
 class CubismAutoEyeBlinkInput(MonoBehaviour):
 	Mean : float
 	MaximumDeviation : float
 	Timescale : float
 
-@unitypy_define
+@unitypy_define_ex
 class CubismDontMoveOnReimportAttribute(MonoBehaviour):
 	pass
 
-@unitypy_define
+@unitypy_define_ex
 class CubismEyeBlinkController(MonoBehaviour):
 	BlendMode : int
 	EyeOpening : float
 
-@unitypy_define
+@unitypy_define_ex
 class CubismEyeBlinkParameter(MonoBehaviour):
 	pass
 
-@unitypy_define
+@unitypy_define_ex
 class CubismHitDrawable(MonoBehaviour):
 	Name : str
 
-@unitypy_define
+@unitypy_define_ex
 class CubismMoveOnReimportCopyComponentsOnly(MonoBehaviour):
 	pass
 
-@unitypy_define
+@unitypy_define_ex
 class CubismParameterBlendMode(MonoBehaviour):
 	value__ : int
 
-@unitypy_define
+@unitypy_define_ex
 class CubismParameterExtensionMethods(MonoBehaviour):
 	pass
 
-@unitypy_define
+@unitypy_define_ex
 class CubismParametersInspector(MonoBehaviour):
 	pass
 
-@unitypy_define
+@unitypy_define_ex
 class CubismParameterStore(MonoBehaviour):
 	pass
 
-@unitypy_define
+@unitypy_define_ex
 class CubismPartsInspector(MonoBehaviour):
 	pass
 
-@unitypy_define
+@unitypy_define_ex
 class CubismUpdateController(MonoBehaviour):
 	pass
 
-@unitypy_define
+@unitypy_define_ex
 class CubismExpressionData(MonoBehaviour):
 	Type : str
 	FadeInTime : float
 	FadeOutTime : float
 	Parameters : List[object]
 
-@unitypy_define
+@unitypy_define_ex
 class CubismExpressionList(MonoBehaviour):
 	CubismExpressionObjects : List[CubismExpressionData]
 
-@unitypy_define
+@unitypy_define_ex
 class CubismExpressionController(MonoBehaviour):
 	ExpressionsList : PPtr[CubismExpressionList]
 	CurrentExpressionIndex : int
 
-@unitypy_define
+@unitypy_define_ex
 class CubismPlayingExpression(MonoBehaviour):
 	Type : str
 	FadeInTime : float
@@ -13727,16 +13731,16 @@ class CubismPlayingExpression(MonoBehaviour):
 	Value : List[float]
 	Blend : List[CubismParameterBlendMode]
 
-@unitypy_define
+@unitypy_define_ex
 class CubismHarmonicMotionController(MonoBehaviour):
 	BlendMode : int
 	ChannelTimescales : List[float]
 
-@unitypy_define
+@unitypy_define_ex
 class CubismHarmonicMotionDirection(MonoBehaviour):
 	value__ : int
 
-@unitypy_define
+@unitypy_define_ex
 class CubismHarmonicMotionParameter(MonoBehaviour):
 	Channel : int
 	Direction : int
@@ -13744,97 +13748,97 @@ class CubismHarmonicMotionParameter(MonoBehaviour):
 	NormalizedRange : float
 	Duration : float
 
-@unitypy_define
+@unitypy_define_ex
 class ICubismUpdatable(MonoBehaviour):
 	pass
 
-@unitypy_define
+@unitypy_define_ex
 class CubismBuiltinPickers(MonoBehaviour):
 	pass
 
-@unitypy_define
+@unitypy_define_ex
 class CubismExp3Json(MonoBehaviour):
 	Type : str
 	FadeInTime : float
 	FadeOutTime : float
 	Parameters : List[object]
 
-@unitypy_define
+@unitypy_define_ex
 class CubismJsonParser(MonoBehaviour):
 	pass
 
-@unitypy_define
+@unitypy_define_ex
 class CubismModel3Json(MonoBehaviour):
 	Version : int
 	FileReferences : object
 	Groups : List[object]
 	HitAreas : List[object]
 
-@unitypy_define
+@unitypy_define_ex
 class CubismMotion3Json(MonoBehaviour):
 	Version : int
 	Meta : object
 	Curves : List[object]
 	UserData : List[object]
 
-@unitypy_define
+@unitypy_define_ex
 class CubismPhysics3Json(MonoBehaviour):
 	Version : int
 	Meta : object
 	PhysicsSettings : List[object]
 
-@unitypy_define
+@unitypy_define_ex
 class CubismPose3Json(MonoBehaviour):
 	Type : str
 	FadeInTime : float
 
-@unitypy_define
+@unitypy_define_ex
 class CubismUserData3Json(MonoBehaviour):
 	Version : int
 	Meta : object
 	UserData : List[object]
 
-@unitypy_define
+@unitypy_define_ex
 class Value(MonoBehaviour):
 	pass
 
-@unitypy_define
+@unitypy_define_ex
 class CubismLookAxis(MonoBehaviour):
 	value__ : int
 
-@unitypy_define
+@unitypy_define_ex
 class CubismLookController(MonoBehaviour):
 	BlendMode : int
-	_target : PPtr[Object] = attrs_field(alias='_target', init=False)
+	_target : PPtr[Object] = attrs_field(alias='_target', init=True)
 	Center : PPtr[Transform]
 	Damping : float
 
-@unitypy_define
+@unitypy_define_ex
 class CubismLookParameter(MonoBehaviour):
 	Axis : int
 	Factor : float
 
-@unitypy_define
+@unitypy_define_ex
 class CubismLookTargetBehaviour(MonoBehaviour):
 	pass
 
-@unitypy_define
+@unitypy_define_ex
 class ICubismLookTarget(MonoBehaviour):
 	pass
 
-@unitypy_define
+@unitypy_define_ex
 class CubismMotionController(MonoBehaviour):
 	LayerCount : int
 
-@unitypy_define
+@unitypy_define_ex
 class CubismMotionLayer(MonoBehaviour):
 	pass
 
-@unitypy_define
+@unitypy_define_ex
 class CubismMotionState(MonoBehaviour):
 	pass
 
-@unitypy_define
+@unitypy_define_ex
 class CubismFadeMotionData(MonoBehaviour):
 	MotionName : str
 	FadeInTime : float
@@ -13845,24 +13849,24 @@ class CubismFadeMotionData(MonoBehaviour):
 	ParameterFadeOutTimes : List[float]
 	MotionLength : float
 
-@unitypy_define
+@unitypy_define_ex
 class CubismFadeMotionList(MonoBehaviour):
 	MotionInstanceIds : List[int]
 	CubismFadeMotionObjects : List[CubismFadeMotionData]
 
-@unitypy_define
+@unitypy_define_ex
 class CubismFadeController(MonoBehaviour):
 	CubismFadeMotionList : PPtr[CubismFadeMotionList]
 
-@unitypy_define
+@unitypy_define_ex
 class CubismFadeCurveType(MonoBehaviour):
 	value__ : int
 
-@unitypy_define
+@unitypy_define_ex
 class CubismFadeMath(MonoBehaviour):
 	pass
 
-@unitypy_define
+@unitypy_define_ex
 class CubismFadePlayingMotion(MonoBehaviour):
 	StartTime : float
 	EndTime : float
@@ -13870,47 +13874,61 @@ class CubismFadePlayingMotion(MonoBehaviour):
 	Speed : float
 	Motion : PPtr[CubismFadeMotionData]
 
-@unitypy_define
+@unitypy_define_ex
 class CubismFadeStateObserver(MonoBehaviour):
 	pass
 
-@unitypy_define
+@unitypy_define_ex
 class ICubismFadeState(MonoBehaviour):
 	pass
 
-@unitypy_define
+@unitypy_define_ex
 class CubismAudioMouthInput(MonoBehaviour):
 	AudioInput : PPtr[AudioSource]
 	SamplingQuality : int
 	Gain : float
 	Smoothing : float
 
-@unitypy_define
+@unitypy_define_ex
 class CubismAudioSamplingQuality(MonoBehaviour):
 	value__ : int
 
-@unitypy_define
+@unitypy_define_ex
 class CubismAutoMouthInput(MonoBehaviour):
 	Timescale : float
 
-@unitypy_define
+@unitypy_define_ex
 class CubismMouthController(MonoBehaviour):
 	BlendMode : int
 	MouthOpening : float
 
-@unitypy_define
+@unitypy_define_ex
 class CubismMouthParameter(MonoBehaviour):
 	pass
 
-@unitypy_define
+@unitypy_define_ex
 class ObjectExtensionMethods(MonoBehaviour):
 	pass
 
-@unitypy_define
+@unitypy_define_ex
 class CubismPhysics(MonoBehaviour):
 	pass
 
-@unitypy_define
+@unitypy_define_ex
+class CubismPhysicsParticle(MonoBehaviour):
+	InitialPosition : Vector2f
+	Mobility : float
+	Delay : float
+	Acceleration : float
+	Radius : float
+
+@unitypy_define_ex
+class CubismPhysicsNormalizationTuplet(MonoBehaviour):
+	Maximum : float
+	Minimum : float
+	Default : float
+
+@unitypy_define_ex
 class CubismPhysicsInput(MonoBehaviour):
 	SourceId : str
 	ScaleOfTranslation : Vector2f
@@ -13919,26 +13937,7 @@ class CubismPhysicsInput(MonoBehaviour):
 	SourceComponent : int
 	IsInverted : bool
 
-@unitypy_define
-class CubismPhysicsParticle(MonoBehaviour):
-	InitialPosition : Vector2f
-	Mobility : float
-	Delay : float
-	Acceleration : float
-	Radius : float
-
-@unitypy_define
-class CubismPhysicsNormalizationTuplet(MonoBehaviour):
-	Maximum : float
-	Minimum : float
-	Default : float
-
-@unitypy_define
-class CubismPhysicsNormalization(MonoBehaviour):
-	Position : CubismPhysicsNormalizationTuplet
-	Angle : CubismPhysicsNormalizationTuplet
-
-@unitypy_define
+@unitypy_define_ex
 class CubismPhysicsOutput(MonoBehaviour):
 	DestinationId : str
 	ParticleIndex : int
@@ -13948,189 +13947,194 @@ class CubismPhysicsOutput(MonoBehaviour):
 	SourceComponent : int
 	IsInverted : bool
 
-@unitypy_define
+@unitypy_define_ex
+class CubismPhysicsNormalization(MonoBehaviour):
+	Position : CubismPhysicsNormalizationTuplet
+	Angle : CubismPhysicsNormalizationTuplet
+
+@unitypy_define_ex
 class CubismPhysicsSubRig(MonoBehaviour):
 	Input : List[CubismPhysicsInput]
 	Output : List[CubismPhysicsOutput]
 	Particles : List[CubismPhysicsParticle]
 	Normalization : CubismPhysicsNormalization
 
-@unitypy_define
+@unitypy_define_ex
 class CubismPhysicsRig(MonoBehaviour):
 	SubRigs : List[CubismPhysicsSubRig]
 
-@unitypy_define
+@unitypy_define_ex
 class CubismPhysicsController(MonoBehaviour):
-	_rig : CubismPhysicsRig = attrs_field(alias='_rig', init=False)
+	_rig : CubismPhysicsRig = attrs_field(alias='_rig', init=True)
 
-@unitypy_define
+@unitypy_define_ex
 class CubismPhysicsMath(MonoBehaviour):
 	pass
 
-@unitypy_define
+@unitypy_define_ex
 class CubismPhysicsSourceComponent(MonoBehaviour):
 	value__ : int
 
-@unitypy_define
+@unitypy_define_ex
 class CubismPoseController(MonoBehaviour):
 	defaultPoseIndex : int
 
-@unitypy_define
+@unitypy_define_ex
 class CubismPosePart(MonoBehaviour):
 	GroupIndex : int
 	PartIndex : int
 	Link : List[str]
 
-@unitypy_define
+@unitypy_define_ex
 class CubismPoseData(MonoBehaviour):
 	PosePart : PPtr[CubismPosePart]
 	Part : PPtr[CubismPart]
 	LinkParts : List[CubismPart]
 	Opacity : float
 
-@unitypy_define
+@unitypy_define_ex
 class CubismRaycastable(MonoBehaviour):
 	Precision : int
 
-@unitypy_define
+@unitypy_define_ex
 class CubismRaycastablePrecision(MonoBehaviour):
 	value__ : int
 
-@unitypy_define
+@unitypy_define_ex
 class CubismRaycaster(MonoBehaviour):
 	pass
 
-@unitypy_define
+@unitypy_define_ex
 class CubismRaycastHit(MonoBehaviour):
 	Drawable : PPtr[CubismDrawable]
 	Distance : float
 	LocalPosition : Vector3f
 	WorldPosition : Vector3f
 
-@unitypy_define
+@unitypy_define_ex
 class CubismBuiltinAsyncTaskHandler(MonoBehaviour):
 	pass
 
-@unitypy_define
+@unitypy_define_ex
 class CubismUserDataBody(MonoBehaviour):
 	Id : str
 	Value : str
 
-@unitypy_define
+@unitypy_define_ex
 class CubismUserDataTag(MonoBehaviour):
-	_body : CubismUserDataBody = attrs_field(alias='_body', init=False)
+	_body : CubismUserDataBody = attrs_field(alias='_body', init=True)
 
-@unitypy_define
+@unitypy_define_ex
 class CubismUserDataTargetType(MonoBehaviour):
 	value__ : int
 
-@unitypy_define
+@unitypy_define_ex
 class CubismBuiltinMaterials(MonoBehaviour):
 	pass
 
-@unitypy_define
+@unitypy_define_ex
 class CubismBuiltinShaders(MonoBehaviour):
 	pass
 
-@unitypy_define
+@unitypy_define_ex
 class CubismRenderController(MonoBehaviour):
 	Opacity : float
-	_lastOpacity : float = attrs_field(alias='_lastOpacity', init=False)
-	_sortingLayerId : int = attrs_field(alias='_sortingLayerId', init=False)
-	_sortingMode : int = attrs_field(alias='_sortingMode', init=False)
-	_sortingOrder : int = attrs_field(alias='_sortingOrder', init=False)
+	_lastOpacity : float = attrs_field(alias='_lastOpacity', init=True)
+	_sortingLayerId : int = attrs_field(alias='_sortingLayerId', init=True)
+	_sortingMode : int = attrs_field(alias='_sortingMode', init=True)
+	_sortingOrder : int = attrs_field(alias='_sortingOrder', init=True)
 	CameraToFace : PPtr[Camera]
-	_drawOrderHandler : PPtr[Object] = attrs_field(alias='_drawOrderHandler', init=False)
-	_opacityHandler : PPtr[Object] = attrs_field(alias='_opacityHandler', init=False)
-	_depthOffset : float = attrs_field(alias='_depthOffset', init=False)
+	_drawOrderHandler : PPtr[Object] = attrs_field(alias='_drawOrderHandler', init=True)
+	_opacityHandler : PPtr[Object] = attrs_field(alias='_opacityHandler', init=True)
+	_depthOffset : float = attrs_field(alias='_depthOffset', init=True)
 
-@unitypy_define
+@unitypy_define_ex
 class CubismRenderer(MonoBehaviour):
-	_localSortingOrder : int = attrs_field(alias='_localSortingOrder', init=False)
-	_color : ColorRGBA = attrs_field(alias='_color', init=False)
-	_mainTexture : PPtr[Texture2D] = attrs_field(alias='_mainTexture', init=False)
-	_sortingMode : int = attrs_field(alias='_sortingMode', init=False)
-	_sortingOrder : int = attrs_field(alias='_sortingOrder', init=False)
-	_renderOrder : int = attrs_field(alias='_renderOrder', init=False)
-	_depthOffset : float = attrs_field(alias='_depthOffset', init=False)
-	_opacity : float = attrs_field(alias='_opacity', init=False)
+	_localSortingOrder : int = attrs_field(alias='_localSortingOrder', init=True)
+	_color : ColorRGBA = attrs_field(alias='_color', init=True)
+	_mainTexture : PPtr[Texture2D] = attrs_field(alias='_mainTexture', init=True)
+	_sortingMode : int = attrs_field(alias='_sortingMode', init=True)
+	_sortingOrder : int = attrs_field(alias='_sortingOrder', init=True)
+	_renderOrder : int = attrs_field(alias='_renderOrder', init=True)
+	_depthOffset : float = attrs_field(alias='_depthOffset', init=True)
+	_opacity : float = attrs_field(alias='_opacity', init=True)
 
-@unitypy_define
+@unitypy_define_ex
 class CubismShaderVariables(MonoBehaviour):
 	pass
 
-@unitypy_define
+@unitypy_define_ex
 class CubismSortingMode(MonoBehaviour):
 	value__ : int
 
-@unitypy_define
+@unitypy_define_ex
 class CubismSortingModeExtensionMethods(MonoBehaviour):
 	pass
 
-@unitypy_define
+@unitypy_define_ex
 class ICubismDrawOrderHandler(MonoBehaviour):
 	pass
 
-@unitypy_define
+@unitypy_define_ex
 class ICubismOpacityHandler(MonoBehaviour):
 	pass
 
-@unitypy_define
+@unitypy_define_ex
 class CubismMaskCommandBuffer(MonoBehaviour):
 	pass
 
-@unitypy_define
+@unitypy_define_ex
 class CubismMaskTexture(MonoBehaviour):
-	_size : int = attrs_field(alias='_size', init=False)
-	_subdivisions : int = attrs_field(alias='_subdivisions', init=False)
+	_size : int = attrs_field(alias='_size', init=True)
+	_subdivisions : int = attrs_field(alias='_subdivisions', init=True)
 
-@unitypy_define
+@unitypy_define_ex
 class CubismMaskController(MonoBehaviour):
-	_maskTexture : PPtr[CubismMaskTexture] = attrs_field(alias='_maskTexture', init=False)
+	_maskTexture : PPtr[CubismMaskTexture] = attrs_field(alias='_maskTexture', init=True)
 
-@unitypy_define
+@unitypy_define_ex
 class CubismMaskMaskedJunction(MonoBehaviour):
 	pass
 
-@unitypy_define
+@unitypy_define_ex
 class CubismMaskProperties(MonoBehaviour):
 	Texture : PPtr[CubismMaskTexture]
 
-@unitypy_define
+@unitypy_define_ex
 class CubismMaskRenderer(MonoBehaviour):
 	pass
 
-@unitypy_define
+@unitypy_define_ex
 class CubismMaskRendererExtensionMethods(MonoBehaviour):
 	pass
 
-@unitypy_define
+@unitypy_define_ex
 class CubismMaskTile(MonoBehaviour):
 	Channel : float
 	Column : float
 	Row : float
 	Size : float
 
-@unitypy_define
+@unitypy_define_ex
 class CubismMaskTilePool(MonoBehaviour):
 	pass
 
-@unitypy_define
+@unitypy_define_ex
 class CubismMaskTransform(MonoBehaviour):
 	Offset : Vector2f
 	Scale : float
 
-@unitypy_define
+@unitypy_define_ex
 class ICubismMaskCommandSource(MonoBehaviour):
 	pass
 
-@unitypy_define
+@unitypy_define_ex
 class ICubismMaskTextureCommandSource(MonoBehaviour):
 	pass
 
-@unitypy_define
+@unitypy_define_ex
 class IntExtensionMethods(MonoBehaviour):
 	pass
 
-__classes__ = [CubismTaskHandler,ArrayExtensionMethods,ComponentExtensionMethods,CubismDrawable,CubismDynamicDrawableData,CubismLogging,CubismMoc,CubismModel,CubismParameter,CubismPart,CubismTaskableModel,CubismTaskQueue,GameObjectExtensionMethods,ICubismTask,ByteExtensionMethods,CubismCoreDll,CubismUnmanagedByteArrayView,CubismUnmanagedCanvasInformation,CubismUnmanagedDrawables,CubismUnmanagedFloatArrayView,CubismUnmanagedIntArrayView,CubismUnmanagedMemory,CubismUnmanagedMoc,CubismUnmanagedModel,CubismUnmanagedParameters,CubismUnmanagedParts,CubismUnmanagedUshortArrayView,CubismAutoEyeBlinkInput,CubismDontMoveOnReimportAttribute,CubismEyeBlinkController,CubismEyeBlinkParameter,CubismHitDrawable,CubismMoveOnReimportCopyComponentsOnly,CubismParameterBlendMode,CubismParameterExtensionMethods,CubismParametersInspector,CubismParameterStore,CubismPartsInspector,CubismUpdateController,CubismExpressionData,CubismExpressionList,CubismExpressionController,CubismPlayingExpression,CubismHarmonicMotionController,CubismHarmonicMotionDirection,CubismHarmonicMotionParameter,ICubismUpdatable,CubismBuiltinPickers,CubismExp3Json,CubismJsonParser,CubismModel3Json,CubismMotion3Json,CubismPhysics3Json,CubismPose3Json,CubismUserData3Json,Value,CubismLookAxis,CubismLookController,CubismLookParameter,CubismLookTargetBehaviour,ICubismLookTarget,CubismMotionController,CubismMotionLayer,CubismMotionState,CubismFadeMotionData,CubismFadeMotionList,CubismFadeController,CubismFadeCurveType,CubismFadeMath,CubismFadePlayingMotion,CubismFadeStateObserver,ICubismFadeState,CubismAudioMouthInput,CubismAudioSamplingQuality,CubismAutoMouthInput,CubismMouthController,CubismMouthParameter,ObjectExtensionMethods,CubismPhysics,CubismPhysicsInput,CubismPhysicsParticle,CubismPhysicsNormalizationTuplet,CubismPhysicsNormalization,CubismPhysicsOutput,CubismPhysicsSubRig,CubismPhysicsRig,CubismPhysicsController,CubismPhysicsMath,CubismPhysicsSourceComponent,CubismPoseController,CubismPosePart,CubismPoseData,CubismRaycastable,CubismRaycastablePrecision,CubismRaycaster,CubismRaycastHit,CubismBuiltinAsyncTaskHandler,CubismUserDataBody,CubismUserDataTag,CubismUserDataTargetType,CubismBuiltinMaterials,CubismBuiltinShaders,CubismRenderController,CubismRenderer,CubismShaderVariables,CubismSortingMode,CubismSortingModeExtensionMethods,ICubismDrawOrderHandler,ICubismOpacityHandler,CubismMaskCommandBuffer,CubismMaskTexture,CubismMaskController,CubismMaskMaskedJunction,CubismMaskProperties,CubismMaskRenderer,CubismMaskRendererExtensionMethods,CubismMaskTile,CubismMaskTilePool,CubismMaskTransform,ICubismMaskCommandSource,ICubismMaskTextureCommandSource,IntExtensionMethods]
+__classes__ = [CubismTaskHandler,ArrayExtensionMethods,ComponentExtensionMethods,CubismDrawable,CubismDynamicDrawableData,CubismLogging,CubismMoc,CubismModel,CubismParameter,CubismPart,CubismTaskableModel,CubismTaskQueue,GameObjectExtensionMethods,ICubismTask,ByteExtensionMethods,CubismCoreDll,CubismUnmanagedByteArrayView,CubismUnmanagedCanvasInformation,CubismUnmanagedDrawables,CubismUnmanagedFloatArrayView,CubismUnmanagedIntArrayView,CubismUnmanagedMemory,CubismUnmanagedMoc,CubismUnmanagedModel,CubismUnmanagedParameters,CubismUnmanagedParts,CubismUnmanagedUshortArrayView,CubismAutoEyeBlinkInput,CubismDontMoveOnReimportAttribute,CubismEyeBlinkController,CubismEyeBlinkParameter,CubismHitDrawable,CubismMoveOnReimportCopyComponentsOnly,CubismParameterBlendMode,CubismParameterExtensionMethods,CubismParametersInspector,CubismParameterStore,CubismPartsInspector,CubismUpdateController,CubismExpressionData,CubismExpressionList,CubismExpressionController,CubismPlayingExpression,CubismHarmonicMotionController,CubismHarmonicMotionDirection,CubismHarmonicMotionParameter,ICubismUpdatable,CubismBuiltinPickers,CubismExp3Json,CubismJsonParser,CubismModel3Json,CubismMotion3Json,CubismPhysics3Json,CubismPose3Json,CubismUserData3Json,Value,CubismLookAxis,CubismLookController,CubismLookParameter,CubismLookTargetBehaviour,ICubismLookTarget,CubismMotionController,CubismMotionLayer,CubismMotionState,CubismFadeMotionData,CubismFadeMotionList,CubismFadeController,CubismFadeCurveType,CubismFadeMath,CubismFadePlayingMotion,CubismFadeStateObserver,ICubismFadeState,CubismAudioMouthInput,CubismAudioSamplingQuality,CubismAutoMouthInput,CubismMouthController,CubismMouthParameter,ObjectExtensionMethods,CubismPhysics,CubismPhysicsParticle,CubismPhysicsNormalizationTuplet,CubismPhysicsInput,CubismPhysicsOutput,CubismPhysicsNormalization,CubismPhysicsSubRig,CubismPhysicsRig,CubismPhysicsController,CubismPhysicsMath,CubismPhysicsSourceComponent,CubismPoseController,CubismPosePart,CubismPoseData,CubismRaycastable,CubismRaycastablePrecision,CubismRaycaster,CubismRaycastHit,CubismBuiltinAsyncTaskHandler,CubismUserDataBody,CubismUserDataTag,CubismUserDataTargetType,CubismBuiltinMaterials,CubismBuiltinShaders,CubismRenderController,CubismRenderer,CubismShaderVariables,CubismSortingMode,CubismSortingModeExtensionMethods,ICubismDrawOrderHandler,ICubismOpacityHandler,CubismMaskCommandBuffer,CubismMaskTexture,CubismMaskController,CubismMaskMaskedJunction,CubismMaskProperties,CubismMaskRenderer,CubismMaskRendererExtensionMethods,CubismMaskTile,CubismMaskTilePool,CubismMaskTransform,ICubismMaskCommandSource,ICubismMaskTextureCommandSource,IntExtensionMethods]
 # fmt: on

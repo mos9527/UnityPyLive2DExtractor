@@ -78,7 +78,7 @@ def declare_field(name: str, type: str):
     if name.startswith("_"):
         # attrs treat these as private. Alias them
         # https://www.attrs.org/en/stable/init.html#private-attributes-and-aliases
-        return f"{name} : {type} = attrs_field(alias='{name}', init=False)"
+        return f"{name} : {type} = attrs_field(alias='{name}', init=True)"
     else:
         return f"{name} : {type}"
 
@@ -139,7 +139,12 @@ def __main__():
         "from typing import List, Union, Optional, TypeVar", 
         "from UnityPy.classes import *",
         "from UnityPy.classes.math import (ColorRGBA, Matrix3x4f, Matrix4x4f, Quaternionf, Vector2f, Vector3f, Vector4f, float3, float4,)",
-        "from attrs import field as attrs_field",        
+        "from attrs import field as attrs_field, define as attrs_define",        
+        """def unitypy_define_ex(cls):
+    # Allows deep inheritance and private fields. See `declare_field` in the codegen
+    cls = attrs_define(cls, slots=True, kw_only=True)
+    return cls
+"""
         "TYPETREE_DEFS = " + json.dumps(TYPETREE_DEFS, indent=4),
     )    
     # fmt: on
@@ -153,7 +158,7 @@ def __main__():
             continue
         # Heuristic: If there is a lvl1 field, it's a subclass
         lvl1 = list(filter(lambda field: field["m_Level"] == 1, fields))
-        emit_line("@unitypy_define")
+        emit_line("@unitypy_define_ex")
         clazz = translate_name(clazz)
         clazzes.append(clazz)
         num_fields = 0
