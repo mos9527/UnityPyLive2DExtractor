@@ -22,7 +22,29 @@ TypeTreeHelper.read_typetree_boost = False
 logger = getLogger("UnityPyLive2DExtractor")
 
 import UnityPyLive2DExtractor.typetree_generated as generated
-from sssekai.abcache import fromdict
+
+from typing import get_type_hints
+
+
+def evolve_type(clazz: object, d: dict | object):
+    """Ignores MRO and initializes the class with the given dictionary recursively
+
+    XXX: Hacky.
+    """
+    obj = clazz()
+    types = clazz.__annotations__
+    for k, sub in types.items():
+        reduce_arg = getattr(sub, "__args__", [None])[0]
+        if isinstance(d[k], list) and hasattr(reduce_arg, "__annotations__"):
+            setattr(obj, k, [evolve_type(reduce_arg, x) for x in d[k]])
+        elif isinstance(d[k], dict) and hasattr(sub, "__annotations__"):
+            setattr(obj, k, evolve_type(sub, d[k]))
+        else:
+            if isinstance(d[k], dict):
+                setattr(obj, k, sub(**d[k]))
+            else:
+                setattr(obj, k, sub(d[k]))
+    return obj
 
 
 def __main__():
@@ -65,7 +87,7 @@ def __main__():
         if typetree:
             result = reader.read_typetree(typetree)
             clazz = getattr(generated, className, None)
-            obj = clazz(**result)
+            instance = evolve_type(clazz, result)
             pass
         else:
             print(f"Unknown type: {className}")
