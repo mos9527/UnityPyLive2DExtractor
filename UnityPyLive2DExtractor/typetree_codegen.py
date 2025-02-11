@@ -104,6 +104,7 @@ def __main__():
         }
         for clazz, fields in TYPETREE_DEFS_BY_NAME.items()
     }
+    graph = {k: list(sorted(v)) for k, v in graph.items()}
     vis = defaultdict(lambda: 0)
     topo = list()
 
