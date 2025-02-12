@@ -15,11 +15,121 @@ from . import __version__
 logger = getLogger("UnityPyLive2DExtractor")
 
 import UnityPyLive2DExtractor.generated as generated
-import importlib
+
+from .generated.Live2D.Cubism.Framework.Physics import (
+    CubismPhysicsNormalizationTuplet,
+    CubismPhysicsNormalization,
+    CubismPhysicsParticle,
+    CubismPhysicsOutput,
+    CubismPhysicsInput,
+    CubismPhysicsSubRig,
+    CubismPhysicsRig,
+    CubismPhysicsController,
+)
+
+
+def monkey_patch(cls):
+    """ooh ooh aah aah"""
+
+    def wrapper(func):
+        setattr(cls, func.__name__, func)
+        return func
+
+    return wrapper
+
+
+@monkey_patch(CubismPhysicsNormalizationTuplet)
+def dump(self: CubismPhysicsNormalizationTuplet):
+    return {
+        "Maximum": self.Maximum,
+        "Minimum": self.Minimum,
+        "Default": self.Default,
+    }
+
+
+@monkey_patch(CubismPhysicsNormalization)
+def dump(self: CubismPhysicsNormalization):
+    return {"Position": self.Position.dump(), "Angle": self.Angle.dump()}
+
+
+@monkey_patch(CubismPhysicsParticle)
+def dump(self: CubismPhysicsParticle):
+    return {
+        "Position": {"X": self.InitialPosition.x, "Y": self.InitialPosition.y},
+        "Mobility": self.Mobility,
+        "Delay": self.Delay,
+        "Acceleration": self.Acceleration,
+        "Radius": self.Radius,
+    }
+
+
+@monkey_patch(CubismPhysicsOutput)
+def dump(self: CubismPhysicsOutput):
+    return {
+        "Destination": {"Target": "Parameter", "Id": self.DestinationId},
+        "VertexIndex": self.ParticleIndex,
+        "Scale": self.AngleScale,
+        "Weight": self.Weight,
+        "Type": ["X", "Y", "Angle"][self.SourceComponent],
+        "Reflect": self.IsInverted,
+    }
+
+
+@monkey_patch(CubismPhysicsInput)
+def dump(self: CubismPhysicsInput):
+    return {
+        "Source": {"Target": "Parameter", "Id": self.SourceId},
+        "Weight": self.Weight,
+        "Type": ["X", "Y", "Angle"][self.SourceComponent],
+        "Reflect": self.IsInverted,
+    }
+
+
+@monkey_patch(CubismPhysicsSubRig)
+def dump(self: CubismPhysicsSubRig):
+    return {
+        "Input": [x.dump() for x in self.Input],
+        "Output": [x.dump() for x in self.Output],
+        "Vertices": [x.dump() for x in self.Particles],
+        "Normalization": self.Normalization.dump(),
+    }
+
+
+@monkey_patch(CubismPhysicsRig)
+def dump(self: CubismPhysicsRig):
+    return [
+        {"Id": "PhysicsSetting%d" % (i + 1), **rig.dump()}
+        for i, rig in enumerate(self.SubRigs)
+    ]
+
+
+@monkey_patch(CubismPhysicsController)
+def dump(self: CubismPhysicsController):
+    return {
+        "Version": 3,
+        "Meta": {
+            "PhysicsSettingCount": len(self.Rig.SubRigs),
+            "TotalInputCount": sum((len(x.Input) for x in self.Rig.SubRigs)),
+            "TotalOutputCount": sum((len(x.Output) for x in self.Rig.SubRigs)),
+            "VertexCount": sum((len(x.Particles) for x in self.Rig.SubRigs)),
+            "Fps": 60,
+            "EffectiveForces": {
+                "Gravity": {"X": 0, "Y": -1},
+                "Wind": {"X": 0, "Y": 0},
+            },
+            "PhysicsDictionary": [
+                {"Id": "PhysicsSetting%d" % (i + 1), "Name": "%d" % (i + 1)}
+                for i, _ in enumerate(self.Rig.SubRigs)
+            ],
+        },
+        "PhysicsSettings": self.Rig.dump(),
+    }
 
 
 def read_from(reader: ObjectReader, **kwargs):
     """Import generated classes by MonoBehavior script class type and read from reader"""
+    import importlib
+
     match reader.type:
         case ClassIDType.MonoBehaviour:
             mono: MonoBehaviour = reader.read(check_read=False)
