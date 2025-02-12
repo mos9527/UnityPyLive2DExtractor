@@ -3,10 +3,18 @@
 - Supports nested types
 - Supports inheritance
 - Automatically resolves import order and dependencies
+- Generated classes support nested types, and will be initialized with the correct types even with nested dicts
 
 NOTE:
 - Cannot resolve namespace conflicts if the same class name is defined in multiple namespaces
 - Missing type definitions are marked with # XXX: Fallback of {org_type} and typedefed as object
+- Circular inheritance is checked and raises RecursionError
+- The output order (imports, classes) are deterministic and lexicographically sorted
+- The output is emitted in lieu of the Namespace structure of the TypeTree dump, presented as Python modules in directories
+
+USAGE:
+
+    python typetree_codegen.py <typetree_dump.json> <output_dir>
 """
 
 # From https://github.com/K0lb3/UnityPy/blob/master/generators/ClassesGenerator.py
@@ -288,7 +296,7 @@ def __main__():
     parser.add_argument(
         "infile",
         type=str,
-        help="Input file. Dump with https://github.com/K0lb3/TypeTreeGenerator",
+        help="Input TypeTree Dump in JSON format. Dump with https://github.com/K0lb3/TypeTreeGenerator",
     )
     parser.add_argument("outdir", type=str, help="Output directory")
     parser.add_argument("--log-level", default="INFO", help="Set logging level")
