@@ -14,7 +14,7 @@ from . import __version__
 # TypeTreeHelper.read_typetree_boost = False
 logger = getLogger("UnityPyLive2DExtractor")
 
-import UnityPyLive2DExtractor.typetree_generated as generated
+import UnityPyLive2DExtractor.generated as generated
 
 
 def read_from(reader: ObjectReader, **kwargs):
@@ -67,12 +67,7 @@ def __main__():
         lambda reader: reader.type == ClassIDType.MonoBehaviour, env.objects
     ):
         # XXX: Manually mach by Script ClassName
-
-            if "Physics" in className:
-                print(instance)
-        else:
-            print(f"Unknown type: {className}")
-        pass
+        obj = read_from(reader)
 
 
 if __name__ == "__main__":
