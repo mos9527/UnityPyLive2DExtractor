@@ -88,8 +88,11 @@ def typetree_defined(clazz : T) -> T:
 				if type(sub) == str:
 					sub = eval(sub) # attrs turns these into strings...why?
 				reduce_arg = getattr(sub, "__args__", [None])[0]
-				if isinstance(d[k], list) and hasattr(reduce_arg, "__annotations__"):
-					setattr(self, k, [enusre_reserved(reduce_arg(**x)) for x in d[k]])
+				if isinstance(d[k], list):
+					if hasattr(reduce_arg, "__annotations__"):
+						setattr(self, k, [enusre_reserved(reduce_arg(**x)) for x in d[k]])
+					else:
+						setattr(self, k, [enusre_reserved(reduce_arg(x)) for x in d[k]])
 				elif isinstance(d[k], dict) and hasattr(sub, "__annotations__"):
 					setattr(self, k, enusre_reserved(sub(**d[k])))
 				else:
@@ -122,6 +125,7 @@ import argparse, json
 def translate_name(m_Name: str, **kwargs):
     m_Name = m_Name.replace("<>", "__generic_")  # Generic templates
     m_Name = m_Name.replace("<", "_").replace(">", "_")  # Templated
+    m_Name = m_Name.replace("=", "_")  # Special chars
     return m_Name
 
 
@@ -216,7 +220,7 @@ def process_namespace(
     if import_root:
         emit_line(f"from {import_root} import *")
     for clazz, parent in import_defs.items():
-        emit_line(f"from {import_root}{parent} import {clazz}")
+        emit_line(f"from {import_root}{parent or ''} import {clazz}")
 
     emit_line()
     # Emit by topo order
@@ -269,7 +273,7 @@ def process_namespace(
                 name, type = field["m_Name"], translate_type(
                     field["m_Type"], typenames=typetree_defs | import_defs
                 )
-                emit_line(f"\t{declare_field(name, type, field["m_Type"])}")
+                emit_line(f"\t{declare_field(name, type, field['m_Type'])}")
                 clazz_fields.append((name, type, field["m_Type"]))
                 cur_dep1 += 1
             dp[clazz] = cur_dep1
@@ -280,7 +284,7 @@ def process_namespace(
                 name, type = field["m_Name"], translate_type(
                     field["m_Type"], typenames=typetree_defs | import_defs
                 )
-                emit_line(f"\t{declare_field(name, type, field["m_Type"])}")
+                emit_line(f"\t{declare_field(name, type, field['m_Type'])}")
                 clazz_fields.append((name, type))
         if not clazz_fields:
             # Empty class. Consider MRO
