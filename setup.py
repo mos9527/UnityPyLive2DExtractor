@@ -21,7 +21,7 @@ setuptools.setup(
         "License :: OSI Approved :: Apache Software License",
         "Operating System :: OS Independent",
     ],
-    install_requires=["sssekai>=0.7.10"],
+    install_requires=["sssekai>=0.7.12"],
     entry_points={
         "console_scripts": [
             "UnityPyLive2DExtractor = UnityPyLive2DExtractor.__main__:__main__"
