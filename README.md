@@ -3,7 +3,7 @@
 [![Releases](https://img.shields.io/github/downloads/mos9527/UnityPyLive2DExtractor/total.svg)](https://GitHub.com/mos9527/UnityPyLive2DExtractor/releases/) 
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black) 
 
-General purpose, single-file Unity [Live2D](https://www.live2d.com/) Asset recovery tool built w/ [UnityPy](https://github.com/K0lb3/UnityPy) and [sssekai](https://github.com/mos9527/sssekai)
+General purpose [Live2D](https://www.live2d.com/) Asset recovery tool built w/ [UnityPy](https://github.com/K0lb3/UnityPy) and [sssekai](https://github.com/mos9527/sssekai)
 
 As the name suggests, this project is heavily inspired by [Perfare/UnityLive2DExtractor](https://github.com/Perfare/UnityLive2DExtractor). With a few key differences:
 - All Live2D types are implemented with [dumped TypeTree](https://github.com/mos9527/UnityPyLive2DExtractor/blob/main/external/typetree_cubism.json) and [generated types](https://github.com/mos9527/UnityPyLive2DExtractor/blob/main/typetree_codegen.py). This should help with compatibility issues.
@@ -22,3 +22,5 @@ UnityPyLive2DExtractor <input> <output>
 Where `<input>` is the path to your game's path, and `<output>` is the directory to extract the Live2D assets to.
 ## References
 - https://github.com/Perfare/UnityLive2DExtractor
+- https://github.com/K0lb3/TypeTreeGenerator
+- https://github.com/K0lb3/UnityPy
