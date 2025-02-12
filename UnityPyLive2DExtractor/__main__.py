@@ -1,234 +1,188 @@
 import argparse
-import os
-import json
-import pathlib
-import UnityPy
-import io
+import os, io, json
 from zlib import crc32
-from typing import List
-from sssekai.fmt import moc3, motion3
+import UnityPy
+from typing import TypeVar
+from UnityPy.classes import (
+    MonoBehaviour,
+    GameObject,
+    Transform,
+    PPtr,
+    Texture2D,
+    AnimationClip,
+)
 from UnityPy.enums import ClassIDType
-from UnityPy.classes import MonoBehaviour, Texture2D, PPtr
-from UnityPy.math import Vector2, Vector4
-from UnityPy.streams import EndianBinaryReader
+from UnityPy.files import ObjectReader
 from logging import getLogger
 import coloredlogs
 from . import __version__
 
+T = TypeVar("T")
+
+# from UnityPy.helpers import TypeTreeHelper
+# TypeTreeHelper.read_typetree_boost = False
 logger = getLogger("UnityPyLive2DExtractor")
 
-
-class CubismRenderer(MonoBehaviour):
-    LocalSortingOrder: int
-    Color: Vector4
-    MainTexture: PPtr
-    SortingMode: int
-    SortingOrder: int
-    RenderOrder: int
-    DepthOffset: float
-    Opacity: float
-
-    def __init__(self, reader: EndianBinaryReader):
-        super().__init__(reader)
-        self.LocalSortingOrder = reader.read_int()
-        self.Color = reader.read_vector4()
-        self.MainTexture = PPtr(reader)
-        self.SortingMode = reader.read_int()
-        self.SortingOrder = reader.read_int()
-        self.RenderOrder = reader.read_int()
-        self.DepthOffset = reader.read_float()
-        self.Opacity = reader.read_float()
-
-    def __hash__(self):
-        return self.MainTexture.path_id
-
-    def __eq__(self, other):
-        return type(other) == type(self) and hash(self) == hash(other)
+import UnityPyLive2DExtractor.generated as generated
+from .generated.Live2D.Cubism.Core import CubismModel
+from .generated.Live2D.Cubism.Rendering import CubismRenderer
+from .generated.Live2D.Cubism.Framework.Physics import (
+    CubismPhysicsNormalizationTuplet,
+    CubismPhysicsNormalization,
+    CubismPhysicsParticle,
+    CubismPhysicsOutput,
+    CubismPhysicsInput,
+    CubismPhysicsSubRig,
+    CubismPhysicsRig,
+    CubismPhysicsController,
+)
+from sssekai.fmt.motion3 import to_motion3
+from sssekai.fmt.moc3 import read_moc3
+from sssekai.unity.AnimationClip import AnimationHelper
 
 
-class CubismMoc(MonoBehaviour):
-    Binary: bytes
+def monkey_patch(cls):
+    """ooh ooh aah aah"""
 
-    def __init__(self, reader: EndianBinaryReader):
-        super().__init__(reader)
-        self.Binary = reader.read_byte_array()
+    def wrapper(func):
+        setattr(cls, func.__name__, func)
+        return func
 
-
-class CubismPhysicsNormalizationTuplet:
-    Maximum: float
-    Minimum: float
-    Default: float
-
-    def __init__(self, reader: EndianBinaryReader):
-        self.Maximum = reader.read_float()
-        self.Minimum = reader.read_float()
-        self.Default = reader.read_float()
-
-    def dump(self):
-        return {
-            "Maximum": self.Maximum,
-            "Minimum": self.Minimum,
-            "Default": self.Default,
-        }
+    return wrapper
 
 
-class CubismPhysicsNormalization:
-    Position: CubismPhysicsNormalizationTuplet
-    Angle: CubismPhysicsNormalizationTuplet
-
-    def __init__(self, reader: EndianBinaryReader):
-        self.Position = CubismPhysicsNormalizationTuplet(reader)
-        self.Angle = CubismPhysicsNormalizationTuplet(reader)
-
-    def dump(self):
-        return {"Position": self.Position.dump(), "Angle": self.Angle.dump()}
+@monkey_patch(CubismPhysicsNormalizationTuplet)
+def dump(self: CubismPhysicsNormalizationTuplet):
+    return {
+        "Maximum": self.Maximum,
+        "Minimum": self.Minimum,
+        "Default": self.Default,
+    }
 
 
-class CubismPhysicsParticle:
-    InitialPosition: Vector2
-    Mobility: float
-    Delay: float
-    Acceleration: float
-    Radius: float
-
-    def __init__(self, reader: EndianBinaryReader):
-        self.InitialPosition = reader.read_vector2()
-        self.Mobility = reader.read_float()
-        self.Delay = reader.read_float()
-        self.Acceleration = reader.read_float()
-        self.Radius = reader.read_float()
-
-    def dump(self):
-        return {
-            "Position": {"X": self.InitialPosition.X, "Y": self.InitialPosition.Y},
-            "Mobility": self.Mobility,
-            "Delay": self.Delay,
-            "Acceleration": self.Acceleration,
-            "Radius": self.Radius,
-        }
+@monkey_patch(CubismPhysicsNormalization)
+def dump(self: CubismPhysicsNormalization):
+    return {"Position": self.Position.dump(), "Angle": self.Angle.dump()}
 
 
-class CubismPhysicsOutput:
-    DestinationId: str
-    ParticleIndex: int
-    TranslationScale: Vector2
-    AngleScale: float
-    Weight: float
-    SourceComponent: int
-    IsInverted: bool
-
-    def __init__(self, reader: EndianBinaryReader):
-        self.DestinationId = reader.read_aligned_string()
-        self.ParticleIndex = reader.read_int()
-        self.TranslationScale = reader.read_vector2()
-        self.AngleScale = reader.read_float()
-        self.Weight = reader.read_float()
-        self.SourceComponent = reader.read_int()
-        self.IsInverted = reader.read_boolean()
-        reader.align_stream()
-
-    def dump(self):
-        return {
-            "Destination": {"Target": "Parameter", "Id": self.DestinationId},
-            "VertexIndex": self.ParticleIndex,
-            "Scale": self.AngleScale,
-            "Weight": self.Weight,
-            "Type": ["X", "Y", "Angle"][self.SourceComponent],
-            "Reflect": self.IsInverted,
-        }
+@monkey_patch(CubismPhysicsParticle)
+def dump(self: CubismPhysicsParticle):
+    return {
+        "Position": {"X": self.InitialPosition.x, "Y": self.InitialPosition.y},
+        "Mobility": self.Mobility,
+        "Delay": self.Delay,
+        "Acceleration": self.Acceleration,
+        "Radius": self.Radius,
+    }
 
 
-class CubismPhysicsInput:
-    SourceId: str
-    ScaleOfTranslation: Vector2
-    AngleScale: float
-    Weight: float
-    SourceComponent: int
-    IsInverted: bool
-
-    def __init__(self, reader: EndianBinaryReader):
-        self.SourceId = reader.read_aligned_string()
-        self.ScaleOfTranslation = reader.read_vector2()
-        self.AngleScale = reader.read_float()
-        self.Weight = reader.read_float()
-        self.SourceComponent = reader.read_int()
-        self.IsInverted = reader.read_boolean()
-        reader.align_stream()
-
-    def dump(self):
-        return {
-            "Source": {"Target": "Parameter", "Id": self.SourceId},
-            "Weight": self.Weight,
-            "Type": ["X", "Y", "Angle"][self.SourceComponent],
-            "Reflect": self.IsInverted,
-        }
+@monkey_patch(CubismPhysicsOutput)
+def dump(self: CubismPhysicsOutput):
+    return {
+        "Destination": {"Target": "Parameter", "Id": self.DestinationId},
+        "VertexIndex": self.ParticleIndex,
+        "Scale": self.AngleScale,
+        "Weight": self.Weight,
+        "Type": ["X", "Y", "Angle"][self.SourceComponent],
+        "Reflect": self.IsInverted,
+    }
 
 
-class CubismPhysicsSubRig:
-    Input: List[CubismPhysicsInput]
-    Output: List[CubismPhysicsOutput]
-    Particles: List[CubismPhysicsParticle]
-    Normalization: CubismPhysicsNormalization
-
-    def __init__(self, reader: EndianBinaryReader):
-        num_input = reader.read_int()
-        self.Input = [CubismPhysicsInput(reader) for _ in range(num_input)]
-        num_output = reader.read_int()
-        self.Output = [CubismPhysicsOutput(reader) for _ in range(num_output)]
-        num_particles = reader.read_int()
-        self.Particles = [CubismPhysicsParticle(reader) for _ in range(num_particles)]
-        self.Normalization = CubismPhysicsNormalization(reader)
-
-    def dump(self):
-        return {
-            "Input": [x.dump() for x in self.Input],
-            "Output": [x.dump() for x in self.Output],
-            "Vertices": [x.dump() for x in self.Particles],
-            "Normalization": self.Normalization.dump(),
-        }
+@monkey_patch(CubismPhysicsInput)
+def dump(self: CubismPhysicsInput):
+    return {
+        "Source": {"Target": "Parameter", "Id": self.SourceId},
+        "Weight": self.Weight,
+        "Type": ["X", "Y", "Angle"][self.SourceComponent],
+        "Reflect": self.IsInverted,
+    }
 
 
-class CubismPhysicsRig:
-    SubRigs: List[CubismPhysicsSubRig]
-
-    def __init__(self, reader: EndianBinaryReader):
-        num_sub_rigs = reader.read_int()
-        self.SubRigs = [CubismPhysicsSubRig(reader) for _ in range(num_sub_rigs)]
-
-    def dump(self):
-        return [
-            {"Id": "PhysicsSetting%d" % (i + 1), **rig.dump()}
-            for i, rig in enumerate(self.SubRigs)
-        ]
+@monkey_patch(CubismPhysicsSubRig)
+def dump(self: CubismPhysicsSubRig):
+    return {
+        "Input": [x.dump() for x in self.Input],
+        "Output": [x.dump() for x in self.Output],
+        "Vertices": [x.dump() for x in self.Particles],
+        "Normalization": self.Normalization.dump(),
+    }
 
 
-class CubismPhysicsController(MonoBehaviour):
-    Rig: CubismPhysicsRig
+@monkey_patch(CubismPhysicsRig)
+def dump(self: CubismPhysicsRig):
+    return [
+        {"Id": "PhysicsSetting%d" % (i + 1), **rig.dump()}
+        for i, rig in enumerate(self.SubRigs)
+    ]
 
-    def __init__(self, reader: EndianBinaryReader):
-        super().__init__(reader)
-        self.Rig = CubismPhysicsRig(reader)
 
-    def dump(self):
-        return {
-            "Version": 3,
-            "Meta": {
-                "PhysicsSettingCount": len(self.Rig.SubRigs),
-                "TotalInputCount": sum((len(x.Input) for x in self.Rig.SubRigs)),
-                "TotalOutputCount": sum((len(x.Output) for x in self.Rig.SubRigs)),
-                "VertexCount": sum((len(x.Particles) for x in self.Rig.SubRigs)),
-                "Fps": 60,
-                "EffectiveForces": {
-                    "Gravity": {"X": 0, "Y": -1},
-                    "Wind": {"X": 0, "Y": 0},
-                },
-                "PhysicsDictionary": [
-                    {"Id": "PhysicsSetting%d" % (i + 1), "Name": "%d" % (i + 1)}
-                    for i, _ in enumerate(self.Rig.SubRigs)
-                ],
+@monkey_patch(CubismPhysicsController)
+def dump(self: CubismPhysicsController):
+    return {
+        "Version": 3,
+        "Meta": {
+            "PhysicsSettingCount": len(self._rig.SubRigs),
+            "TotalInputCount": sum((len(x.Input) for x in self._rig.SubRigs)),
+            "TotalOutputCount": sum((len(x.Output) for x in self._rig.SubRigs)),
+            "VertexCount": sum((len(x.Particles) for x in self._rig.SubRigs)),
+            "Fps": 60,
+            "EffectiveForces": {
+                "Gravity": {"X": 0, "Y": -1},
+                "Wind": {"X": 0, "Y": 0},
             },
-            "PhysicsSettings": self.Rig.dump(),
-        }
+            "PhysicsDictionary": [
+                {"Id": "PhysicsSetting%d" % (i + 1), "Name": "%d" % (i + 1)}
+                for i, _ in enumerate(self._rig.SubRigs)
+            ],
+        },
+        "PhysicsSettings": self._rig.dump(),
+    }
+
+
+@monkey_patch(CubismRenderer)
+def __hash__(self: CubismRenderer):
+    return self._mainTexture.path_id
+
+
+@monkey_patch(CubismRenderer)
+def __eq__(self: CubismRenderer, other: CubismRenderer):
+    return self.__hash__() == other.__hash__()
+
+
+# XXX: Is monkey patching this into UnityPy a good idea?
+def read_from(reader: ObjectReader, **kwargs):
+    """Import generated classes by MonoBehavior script class type and read from reader"""
+    import importlib
+
+    match reader.type:
+        case ClassIDType.MonoBehaviour:
+            mono: MonoBehaviour = reader.read(check_read=False)
+            script = mono.m_Script.read()
+            nameSpace = script.m_Namespace
+            className = script.m_Name
+            if script.m_Namespace:
+                fullName = script.m_Namespace + "." + className
+            else:
+                fullName = className
+            typetree = generated.TYPETREE_DEFS.get(fullName, None)
+
+            if typetree:
+                result = reader.read_typetree(typetree)
+                nameSpace = importlib.import_module(
+                    f".generated.{nameSpace}", package=__package__
+                )
+                clazz = getattr(nameSpace, className, None)
+                instance = clazz(object_reader=reader, **result)
+                return instance
+            else:
+                logger.debug(f"Missing definitions for {fullName}, skipping.")
+                return mono
+        case _:
+            return reader.read(**kwargs)
+
+
+def read_from_ptr(ptr: PPtr[T], reader: ObjectReader) -> T:
+    return read_from(ptr.deref(reader.assets_file))
 
 
 def __main__():
@@ -254,128 +208,103 @@ def __main__():
     )
     os.makedirs(args.outdir, exist_ok=True)
     env = UnityPy.load(args.infile)
-    # Helpers
-    filter_className = (
-        lambda obj, className: obj.type == ClassIDType.MonoBehaviour
-        and obj.m_Script.get_obj().read().m_ClassName == className
-    )
-    comp_get_parent = lambda objs: [
-        obj.m_Transform.read().m_Father.read().m_GameObject.read() for obj in objs
-    ]
-    # Comprehesions
     objs = [
-        pobj.read()
-        for pobj in env.objects
-        if pobj.type
-        in {
-            ClassIDType.MonoBehaviour,
-            ClassIDType.AnimationClip,
-            ClassIDType.GameObject,
-            ClassIDType.Texture2D,
-        }
+        read_from(reader)
+        for reader in filter(
+            lambda reader: reader.type == ClassIDType.MonoBehaviour,
+            env.objects,
+        )
     ]
-    logger.info("Preprocessing %d objects" % len(objs))
-    anim = [obj for obj in objs if obj.type == ClassIDType.AnimationClip]
-    logger.debug("Found %d animations" % len(anim))
-    mocs = {
-        obj.name: CubismMoc(obj.reader)
-        for obj in objs
-        if filter_className(obj, "CubismMoc")
-    }
-    logger.debug("Found %d MOC Binaries" % len(mocs))
-    phys = {
-        obj.m_GameObject.read().name: CubismPhysicsController(obj.reader)
-        for obj in objs
-        if filter_className(obj, "CubismPhysicsController")
-    }
-    logger.debug("Found %d Physics Controllers" % len(phys))
-    rnd_obj = [
-        CubismRenderer(obj.reader)
-        for obj in objs
-        if filter_className(obj, "CubismRenderer")
+    candidates = [
+        read_from_ptr(obj.m_GameObject, obj)
+        for obj in filter(lambda obj: isinstance(obj, CubismPhysicsController), objs)
     ]
-    # Parent GameObject/Drawable/CubismRenderer
-    rnd_pa = comp_get_parent((tex.m_GameObject.read() for tex in rnd_obj))
-    rnd_pa = comp_get_parent(rnd_pa)
-    rnds = {tex.name: set() for tex in rnd_pa}
-    # Filter unique Texture2D objects. See CubismRenderer for its hash function
-    for tex, rnd_pa in zip(rnd_obj, rnd_pa):
-        rnds[rnd_pa.name].add(tex)
-    logger.debug("Found %d Unique Textures" % sum(len(x) for x in rnds.values()))
-    CRC_HASH_TABLE = dict()
-    for name, moc in mocs.items():
-        logger.info("Processing %s" % name)
-        moc: CubismMoc
-        phy: CubismPhysicsController
-        phy = phys.get(name, None)
-        rnd = rnds.get(name, set())
-        model3 = {
+    crc_cache = dict()
+    # fmt: off
+    for OBJ in candidates:
+        OBJ: GameObject
+        components = [read_from_ptr(ptr, OBJ) for ptr in OBJ.m_Components]
+        NAME = OBJ.m_Name
+        MOC : CubismModel = next(filter(lambda x: isinstance(x, CubismModel), components), None)        
+        PHY : CubismPhysicsController = next(filter(lambda x: isinstance(x, CubismPhysicsController), components), None)
+        # ANI : Animator = next(filter(lambda x: isinstance(x, Animator), components), None)
+        # RND : CubismRenderController = next(filter(lambda x: isinstance(x, CubismRenderController), components), None)
+        logger.info(f"Processing {NAME}")
+        outdir = os.path.join(args.outdir, NAME)
+        os.makedirs(outdir, exist_ok=True)
+        metadata = {
             "Version": 3,
             "FileReferences": {
-                "Moc": name + ".moc3",
+                "Moc":"",
                 "Textures": [],
-                "Physics": name + ".physics3.json",
+                "Physics": ""
             },
         }
-        for r in rnd:
-            r: CubismRenderer
-            tex: Texture2D
-            tex = r.MainTexture.read()
-            relpath = os.path.join("textures", name, tex.name + ".png")
-            fpath = os.path.join(args.outdir, relpath)
-            os.makedirs(os.path.dirname(fpath), exist_ok=True)
-            with open(fpath, "wb") as f:
-                tex.image.save(f, format="png") or logger.debug(
-                    "... Texture saved: %s" % fpath
-                )
-            model3["FileReferences"]["Textures"].append(
-                pathlib.Path(relpath).as_posix()
-            )
-        # XXX: We don't know where to find the exact order of the textures (yet) so we sort them in ascending lexicographical order
-        # since would probably be the case anyways
-        model3["FileReferences"]["Textures"] = sorted(
-            model3["FileReferences"]["Textures"]
-        )
-        with open(os.path.join(args.outdir, name + ".moc3"), "wb") as f:
-            f.write(moc.Binary) and logger.debug("... Mesh saved: %s" % f.name)
-            if not args.no_anim:
-                parts, parameters = moc3.read_moc3(io.BytesIO(moc.Binary))
-                for s in parts:
-                    path = "Parts/" + s
-                    CRC_HASH_TABLE[crc32(path.encode("utf-8"))] = path
-                for s in parameters:
-                    path = "Parameters/" + s
-                    CRC_HASH_TABLE[crc32(path.encode("utf-8"))] = path
-        if phy:
-            with open(
-                os.path.join(args.outdir, name + ".physics3.json"),
-                "w",
-                encoding="utf-8",
-            ) as f:
-                json.dump(phy.dump(), f, indent=4, ensure_ascii=False) or logger.debug(
-                    "... Physics saved: %s" % f.name
-                )
-        with open(
-            os.path.join(args.outdir, name + ".model3.json"), "w", encoding="utf-8"
-        ) as f:
-            json.dump(model3, f, indent=4, ensure_ascii=False) or logger.debug(
-                "... Model saved: %s" % f.name
-            )
+        if MOC:
+            fname = metadata["FileReferences"]["Moc"] = f"{NAME}.moc3"
+            with open(os.path.join(outdir, fname), "wb") as f:
+                moc = read_from_ptr(MOC._moc, MOC.object_reader)
+                logger.info(".moc3: %d bytes" % f.write(moc._bytes))
+                try:
+                    parts, parameters = read_moc3(io.BytesIO(moc._bytes))
+                    for s in parts:
+                        path = "Parts/" + s
+                        crc_cache[crc32(path.encode("utf-8"))] = path
+                    for s in parameters:
+                        path = "Parameters/" + s
+                        crc_cache[crc32(path.encode("utf-8"))] = path
+                    logger.info(".moc3: %d parts, %d parameters" % (len(parts), len(parameters)))
+                except Exception as e:
+                    logger.warning("Failed to parse MOC3: %s" % e)
+                    logger.warning("This may indicate obfuscation or a different format")
+        if PHY:
+            fname = metadata["FileReferences"]["Physics"] = f"{NAME}.physics3.json"
+            with open(os.path.join(outdir, fname), "w") as f:
+                logger.info(".physics3.json: %d bytes" % f.write(json.dumps(PHY.dump(),indent=4)))
+        # Renderers are bound to the meshes in the hierarchy
+        def children_recursive(obj: GameObject):
+            transform : Transform = obj.m_Transform.read()
+            for child in transform.m_Children:
+                child = read_from_ptr(child, obj)
+                ch_obj = child.m_GameObject.read()
+                yield ch_obj
+                yield from children_recursive(ch_obj)
+        # Mark referenced textures
+        TEX = set()
+        for child in children_recursive(OBJ):
+            components = [read_from_ptr(ptr, child) for ptr in child.m_Components]
+            RND : CubismRenderer = next(filter(lambda x: isinstance(x, CubismRenderer), components), None)
+            if RND:
+                TEX.add(RND)
+        if TEX:
+            metadata["FileReferences"]["Textures"] = []
+            for tex in TEX:
+                tex : CubismRenderer
+                tex : Texture2D = read_from_ptr(tex._mainTexture, tex)                
+                path = f"Textures/{tex.m_Name}.png"
+                metadata["FileReferences"]["Textures"].append(path)                
+                path = os.path.join(outdir, path)
+                os.makedirs(os.path.dirname(path), exist_ok=True)
+                tex.image.save(path)
+                logger.info(f"[texture]: {tex.m_Name}")
+            # XXX: Lexical. But why?
+            metadata["FileReferences"]["Textures"].sort()
+        path = f"{NAME}.model3.json"
+        json.dump(metadata, open(os.path.join(outdir,path), "w"), indent=4)
+        logger.info(f"[metadata]: {path}")
+    # fmt: on
     if not args.no_anim:
-        os.makedirs(os.path.join(args.outdir, "animations"), exist_ok=True)
-        for a in anim:
-            logger.info("Parsing animation %s" % a.name)
-            with open(
-                os.path.join(args.outdir, "animations", a.name + ".motion3.json"),
-                "w",
-                encoding="utf-8",
-            ) as f:
-                json.dump(
-                    motion3.unity_animation_clip_to_motion3(a, CRC_HASH_TABLE),
-                    f,
-                    indent=4,
-                    ensure_ascii=False,
-                ) or logger.debug("... Animation saved: %s" % f.name)
+        for reader in filter(
+            lambda reader: reader.type == ClassIDType.AnimationClip, env.objects
+        ):
+            clip = reader.read()
+            helper = AnimationHelper.from_clip(clip)
+            motion3 = to_motion3(helper, crc_cache, clip)
+            path = f"Animation/{clip.m_Name}.motion3.json"
+            logger.info(f"[motion3]: {path}")
+            path = os.path.join(args.outdir, path)
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            json.dump(motion3, open(path, "w"), indent=4)
 
 
 if __name__ == "__main__":
