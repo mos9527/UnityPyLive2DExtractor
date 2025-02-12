@@ -11,7 +11,7 @@ class CubismExp3Json(MonoBehaviour):
 	Type : str
 	FadeInTime : float
 	FadeOutTime : float
-	Parameters : List[object]
+	Parameters : List[object] # XXX: Fallback of SerializableExpressionParameter[]
 @typetree_defined
 class CubismJsonParser(MonoBehaviour):
 	pass
@@ -19,19 +19,19 @@ class CubismJsonParser(MonoBehaviour):
 class CubismModel3Json(MonoBehaviour):
 	Version : int
 	FileReferences : object # XXX: Fallback of SerializableFileReferences
-	Groups : List[object]
-	HitAreas : List[object]
+	Groups : List[object] # XXX: Fallback of SerializableGroup[]
+	HitAreas : List[object] # XXX: Fallback of SerializableHitArea[]
 @typetree_defined
 class CubismMotion3Json(MonoBehaviour):
 	Version : int
 	Meta : object # XXX: Fallback of SerializableMeta
-	Curves : List[object]
-	UserData : List[object]
+	Curves : List[object] # XXX: Fallback of SerializableCurve[]
+	UserData : List[object] # XXX: Fallback of SerializableUserData[]
 @typetree_defined
 class CubismPhysics3Json(MonoBehaviour):
 	Version : int
 	Meta : object # XXX: Fallback of SerializableMeta
-	PhysicsSettings : List[object]
+	PhysicsSettings : List[object] # XXX: Fallback of SerializablePhysicsSettings[]
 @typetree_defined
 class CubismPose3Json(MonoBehaviour):
 	Type : str
@@ -40,7 +40,7 @@ class CubismPose3Json(MonoBehaviour):
 class CubismUserData3Json(MonoBehaviour):
 	Version : int
 	Meta : object # XXX: Fallback of SerializableMeta
-	UserData : List[object]
+	UserData : List[object] # XXX: Fallback of SerializableUserData[]
 @typetree_defined
 class Value(MonoBehaviour):
 	pass

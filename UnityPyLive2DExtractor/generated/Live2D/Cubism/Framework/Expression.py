@@ -2,13 +2,15 @@
 # Python definition for Live2D.Cubism.Framework.Expression
 
 from .... import *
+from ....Live2D.Cubism.Core import CubismParameter
+from ....Live2D.Cubism.Framework import CubismParameterBlendMode
 
 @typetree_defined
 class CubismExpressionData(MonoBehaviour):
 	Type : str
 	FadeInTime : float
 	FadeOutTime : float
-	Parameters : List[object]
+	Parameters : List[object] # XXX: Fallback of SerializableExpressionParameter[]
 @typetree_defined
 class CubismExpressionList(MonoBehaviour):
 	CubismExpressionObjects : List[CubismExpressionData]
@@ -24,6 +26,6 @@ class CubismPlayingExpression(MonoBehaviour):
 	Weight : float
 	ExpressionUserTime : float
 	ExpressionEndTime : float
-	Destinations : List[object]
+	Destinations : List[CubismParameter]
 	Value : List[float]
-	Blend : List[object]
+	Blend : List[CubismParameterBlendMode]

@@ -2,6 +2,7 @@
 # Python definition for Live2D.Cubism.Framework.Raycasting
 
 from .... import *
+from ....Live2D.Cubism.Core import CubismDrawable
 
 @typetree_defined
 class CubismRaycastable(MonoBehaviour):
@@ -14,7 +15,7 @@ class CubismRaycaster(MonoBehaviour):
 	pass
 @typetree_defined
 class CubismRaycastHit(MonoBehaviour):
-	Drawable : PPtr[object]
+	Drawable : PPtr[CubismDrawable]
 	Distance : float
 	LocalPosition : Vector3f
 	WorldPosition : Vector3f

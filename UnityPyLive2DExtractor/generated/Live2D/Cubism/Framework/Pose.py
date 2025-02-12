@@ -2,6 +2,7 @@
 # Python definition for Live2D.Cubism.Framework.Pose
 
 from .... import *
+from ....Live2D.Cubism.Core import CubismPart
 
 @typetree_defined
 class CubismPoseController(MonoBehaviour):
@@ -14,6 +15,6 @@ class CubismPosePart(MonoBehaviour):
 @typetree_defined
 class CubismPoseData(MonoBehaviour):
 	PosePart : PPtr[CubismPosePart]
-	Part : PPtr[object]
-	LinkParts : List[object]
+	Part : PPtr[CubismPart]
+	LinkParts : List[CubismPart]
 	Opacity : float
