@@ -15,7 +15,6 @@ from UnityPy.enums import ClassIDType
 from UnityPy.files import ObjectReader
 from logging import getLogger
 import coloredlogs
-from . import __version__
 
 T = TypeVar("T")
 
@@ -23,7 +22,8 @@ T = TypeVar("T")
 # TypeTreeHelper.read_typetree_boost = False
 logger = getLogger("UnityPyLive2DExtractor")
 
-import UnityPyLive2DExtractor.generated as generated
+from UnityPyLive2DExtractor import __version__
+from .generated import TYPETREE_DEFS
 from .generated.Live2D.Cubism.Core import CubismModel
 from .generated.Live2D.Cubism.Rendering import CubismRenderer
 from .generated.Live2D.Cubism.Framework.Physics import (
@@ -164,7 +164,7 @@ def read_from(reader: ObjectReader, **kwargs):
                 fullName = script.m_Namespace + "." + className
             else:
                 fullName = className
-            typetree = generated.TYPETREE_DEFS.get(fullName, None)
+            typetree = TYPETREE_DEFS.get(fullName, None)
 
             if typetree:
                 result = reader.read_typetree(typetree)
