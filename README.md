@@ -6,7 +6,7 @@
 General purpose, single-file Unity [Live2D](https://www.live2d.com/) Asset recovery tool built w/ [UnityPy](https://github.com/K0lb3/UnityPy) and [sssekai](https://github.com/mos9527/sssekai)
 
 As the name suggests, this project is heavily inspired by [Perfare/UnityLive2DExtractor](https://github.com/Perfare/UnityLive2DExtractor). With a few key differences:
-- All Live2D types that are implemented with [dumped TypeTree](https://github.com/mos9527/UnityPyLive2DExtractor/blob/main/external/typetree_cubism.json) and [generated types](https://github.com/mos9527/UnityPyLive2DExtractor/blob/main/typetree_codegen.py). This should help with compatibility issues.
+- All Live2D types are implemented with [dumped TypeTree](https://github.com/mos9527/UnityPyLive2DExtractor/blob/main/external/typetree_cubism.json) and [generated types](https://github.com/mos9527/UnityPyLive2DExtractor/blob/main/typetree_codegen.py). This should help with compatibility issues.
 - New (not necessarily better) asset discovery method. Though proven to be more reliable in some cases.
 
 ## Installation
