@@ -169,7 +169,7 @@ def read_from(reader: ObjectReader, **kwargs):
             if typetree:
                 result = reader.read_typetree(typetree)
                 nameSpace = importlib.import_module(
-                    f".generated.{nameSpace}", package=__package__
+                    f".generated.{nameSpace}", package="UnityPyLive2DExtractor"
                 )
                 clazz = getattr(nameSpace, className, None)
                 instance = clazz(object_reader=reader, **result)
