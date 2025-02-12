@@ -1,8 +1,9 @@
 # -*- mode: python ; coding: utf-8 -*-
 
 # https://github.com/K0lb3/UnityPy/issues/184
-import UnityPy, UnityPyLive2DExtractor, os
+import UnityPy, UnityPyLive2DExtractor, archspec, os
 unitypy_path = lambda path: os.path.join(os.path.dirname(UnityPy.__file__), path)
+archspec_path = lambda path: os.path.join(os.path.dirname(archspec.__file__), path)
 UnityPyLive2DExtractor_path = lambda path: os.path.join(os.path.dirname(UnityPyLive2DExtractor.__file__), path)
 a = Analysis(
     ['UnityPyLive2DExtractor/__main__.py'],
@@ -12,6 +13,7 @@ a = Analysis(
     datas=[
         (unitypy_path('resources/*'), 'UnityPy/resources'),
         (UnityPyLive2DExtractor_path(''), 'UnityPyLive2DExtractor'),
+        (archspec_path('json'), 'archspec/json'),
     ],
     hiddenimports=[],
     hookspath=[],
