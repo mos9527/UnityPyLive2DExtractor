@@ -324,12 +324,11 @@ def __main__():
         namespaces.items(), key=lambda x: x[0].count(".") if x[0] else 0
     ):
         # CubismTaskHandler -> generated/__init__.py
-        # Live2D.Cubism.Core.CubismMoc -> generated/Live2D/Cubism/Core.py
+        # Live2D.Cubism.Core.CubismMoc -> generated/Live2D/Cubism/Core/__init__.py
         if namespace:
-            ndots = namespace.count(".") + 1
+            ndots = namespace.count(".") + 2
             dotss = "." * ndots
-            fname = os.path.join(*namespace.split("."))
-            f = __open(f"{fname}.py")
+            f = __open(os.path.join(*namespace.split("."), "__init__.py"))
             deps = {k: namespacesT[k] for k in namespaceDeps[namespace]}
             deps = dict(sorted(deps.items()))
             process_namespace(namespace, typetree_defs, f, dotss, deps)

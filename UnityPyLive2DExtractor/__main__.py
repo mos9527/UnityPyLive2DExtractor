@@ -15,6 +15,8 @@ from . import __version__
 logger = getLogger("UnityPyLive2DExtractor")
 
 import UnityPyLive2DExtractor.generated as generated
+from .generated.Live2D.Cubism.Core import CubismMoc
+import importlib
 
 
 def read_from(reader: ObjectReader, **kwargs):
@@ -22,16 +24,20 @@ def read_from(reader: ObjectReader, **kwargs):
         case ClassIDType.MonoBehaviour:
             mono: MonoBehaviour = reader.read(check_read=False)
             script = mono.m_Script.read()
+            nameSpace = script.m_Namespace
             className = script.m_Name
             if script.m_Namespace:
                 fullName = script.m_Namespace + "." + className
             else:
-                fullName = fullName
+                fullName = className
             typetree = generated.TYPETREE_DEFS.get(fullName, None)
 
             if typetree:
                 result = reader.read_typetree(typetree)
-                clazz = getattr(generated, className, None)
+                nameSpace = importlib.import_module(
+                    f".generated.{nameSpace}", package=__package__
+                )
+                clazz = getattr(nameSpace, className, None)
                 instance = clazz(**result)
                 return instance
             else:
@@ -67,7 +73,13 @@ def __main__():
         lambda reader: reader.type == ClassIDType.MonoBehaviour, env.objects
     ):
         # XXX: Manually mach by Script ClassName
-        obj = read_from(reader)
+        try:
+            obj = read_from(reader)
+            if type(obj) == CubismMoc:
+                print(obj)
+        except NotImplementedError as e:
+            logger.warning(f"Skipping {e}")
+            continue
 
 
 if __name__ == "__main__":
