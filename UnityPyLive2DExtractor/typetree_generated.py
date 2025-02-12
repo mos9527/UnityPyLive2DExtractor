@@ -3,6 +3,521 @@
 from typing import List, Union, Optional, TypeVar
 from UnityPy.classes import *
 from UnityPy.classes.math import (ColorRGBA, Matrix3x4f, Matrix4x4f, Quaternionf, Vector2f, Vector3f, Vector4f, float3, float4,)
+T = TypeVar("T")
+def typetree_defined(clazz : T) -> T:
+	"""dataclass-like decorator for typetree classess with nested type support
+	
+	limitations:
+	- the behavior is similar to slotted dataclasses where shared attributes are inherited
+	  but allows ommiting init of the parent if kwargs are not sufficient
+	- generally supports nested types, however untested and could be slow	
+    - and ofc, zero type checking and safeguards :/	
+	"""
+	def __init__(cls, **d):		
+		for __base__ in clazz.__bases__:
+			types : dict = __base__.__annotations__
+			args = {k:d[k] for k in types if k in d}
+			if len(args) == len(types):
+				super(clazz, cls).__init__(**args)
+				for k in args: del d[k]
+		types : dict = clazz.__annotations__
+		for k, sub in types.items():
+			reduce_arg = getattr(sub, "__args__", [None])[0]
+			if isinstance(d[k], list) and hasattr(reduce_arg, "__annotations__"):
+				setattr(cls, k, [reduce_arg(**x) for x in d[k]])
+			elif isinstance(d[k], dict) and hasattr(sub, "__annotations__"):
+				setattr(cls, k, sub(**d[k]))
+			else:
+				if isinstance(d[k], dict):
+					setattr(cls, k, sub(**d[k]))
+				else:
+					setattr(cls, k, sub(d[k]))
+	def __repr__(self) -> str:
+		return f"{clazz.__name__}({', '.join([f'{k}={getattr(self, k)!r}' for k in self.__annotations__])})"
+	clazz.__init__ = __init__
+	clazz.__repr__ = __repr__
+	return clazz
+@typetree_defined
+class CubismTaskHandler(MonoBehaviour):
+	pass
+@typetree_defined
+class Live2D_Cubism_Core_ArrayExtensionMethods(MonoBehaviour):
+	pass
+@typetree_defined
+class Live2D_Cubism_Core_ComponentExtensionMethods(MonoBehaviour):
+	pass
+@typetree_defined
+class Live2D_Cubism_Core_CubismDrawable(MonoBehaviour):
+	_unmanagedIndex : int
+@typetree_defined
+class Live2D_Cubism_Core_CubismDynamicDrawableData(MonoBehaviour):
+	pass
+@typetree_defined
+class Live2D_Cubism_Core_CubismLogging(MonoBehaviour):
+	pass
+@typetree_defined
+class Live2D_Cubism_Core_CubismMoc(MonoBehaviour):
+	_bytes : bytes
+@typetree_defined
+class Live2D_Cubism_Core_CubismModel(MonoBehaviour):
+	_moc : PPtr[object]
+@typetree_defined
+class Live2D_Cubism_Core_CubismParameter(MonoBehaviour):
+	_unmanagedIndex : int
+	Value : float
+@typetree_defined
+class Live2D_Cubism_Core_CubismPart(MonoBehaviour):
+	_unmanagedIndex : int
+	Opacity : float
+@typetree_defined
+class Live2D_Cubism_Core_CubismTaskableModel(MonoBehaviour):
+	pass
+@typetree_defined
+class Live2D_Cubism_Core_CubismTaskQueue(MonoBehaviour):
+	pass
+@typetree_defined
+class Live2D_Cubism_Core_GameObjectExtensionMethods(MonoBehaviour):
+	pass
+@typetree_defined
+class Live2D_Cubism_Core_ICubismTask(MonoBehaviour):
+	pass
+@typetree_defined
+class Live2D_Cubism_Core_Unmanaged_ByteExtensionMethods(MonoBehaviour):
+	pass
+@typetree_defined
+class Live2D_Cubism_Core_Unmanaged_CubismCoreDll(MonoBehaviour):
+	pass
+@typetree_defined
+class Live2D_Cubism_Core_Unmanaged_CubismUnmanagedByteArrayView(MonoBehaviour):
+	pass
+@typetree_defined
+class Live2D_Cubism_Core_Unmanaged_CubismUnmanagedCanvasInformation(MonoBehaviour):
+	pass
+@typetree_defined
+class Live2D_Cubism_Core_Unmanaged_CubismUnmanagedDrawables(MonoBehaviour):
+	pass
+@typetree_defined
+class Live2D_Cubism_Core_Unmanaged_CubismUnmanagedFloatArrayView(MonoBehaviour):
+	pass
+@typetree_defined
+class Live2D_Cubism_Core_Unmanaged_CubismUnmanagedIntArrayView(MonoBehaviour):
+	pass
+@typetree_defined
+class Live2D_Cubism_Core_Unmanaged_CubismUnmanagedMemory(MonoBehaviour):
+	pass
+@typetree_defined
+class Live2D_Cubism_Core_Unmanaged_CubismUnmanagedMoc(MonoBehaviour):
+	pass
+@typetree_defined
+class Live2D_Cubism_Core_Unmanaged_CubismUnmanagedModel(MonoBehaviour):
+	pass
+@typetree_defined
+class Live2D_Cubism_Core_Unmanaged_CubismUnmanagedParameters(MonoBehaviour):
+	pass
+@typetree_defined
+class Live2D_Cubism_Core_Unmanaged_CubismUnmanagedParts(MonoBehaviour):
+	pass
+@typetree_defined
+class Live2D_Cubism_Core_Unmanaged_CubismUnmanagedUshortArrayView(MonoBehaviour):
+	pass
+@typetree_defined
+class Live2D_Cubism_Framework_ComponentExtensionMethods(MonoBehaviour):
+	pass
+@typetree_defined
+class Live2D_Cubism_Framework_CubismAutoEyeBlinkInput(MonoBehaviour):
+	Mean : float
+	MaximumDeviation : float
+	Timescale : float
+@typetree_defined
+class Live2D_Cubism_Framework_CubismDontMoveOnReimportAttribute(MonoBehaviour):
+	pass
+@typetree_defined
+class Live2D_Cubism_Framework_CubismEyeBlinkController(MonoBehaviour):
+	BlendMode : int
+	EyeOpening : float
+@typetree_defined
+class Live2D_Cubism_Framework_CubismEyeBlinkParameter(MonoBehaviour):
+	pass
+@typetree_defined
+class Live2D_Cubism_Framework_CubismHitDrawable(MonoBehaviour):
+	Name : str
+@typetree_defined
+class Live2D_Cubism_Framework_CubismMoveOnReimportCopyComponentsOnly(MonoBehaviour):
+	pass
+@typetree_defined
+class Live2D_Cubism_Framework_CubismParameterBlendMode(MonoBehaviour):
+	value__ : int
+@typetree_defined
+class Live2D_Cubism_Framework_CubismParameterExtensionMethods(MonoBehaviour):
+	pass
+@typetree_defined
+class Live2D_Cubism_Framework_CubismParametersInspector(MonoBehaviour):
+	pass
+@typetree_defined
+class Live2D_Cubism_Framework_CubismParameterStore(MonoBehaviour):
+	pass
+@typetree_defined
+class Live2D_Cubism_Framework_CubismPartsInspector(MonoBehaviour):
+	pass
+@typetree_defined
+class Live2D_Cubism_Framework_CubismUpdateController(MonoBehaviour):
+	pass
+@typetree_defined
+class Live2D_Cubism_Framework_Expression_CubismExpressionController(MonoBehaviour):
+	ExpressionsList : PPtr[object]
+	CurrentExpressionIndex : int
+@typetree_defined
+class Live2D_Cubism_Framework_Expression_CubismExpressionData(MonoBehaviour):
+	Type : str
+	FadeInTime : float
+	FadeOutTime : float
+	Parameters : List[object]
+@typetree_defined
+class Live2D_Cubism_Framework_Expression_CubismExpressionList(MonoBehaviour):
+	CubismExpressionObjects : List[object]
+@typetree_defined
+class Live2D_Cubism_Framework_Expression_CubismPlayingExpression(MonoBehaviour):
+	Type : str
+	FadeInTime : float
+	FadeOutTime : float
+	Weight : float
+	ExpressionUserTime : float
+	ExpressionEndTime : float
+	Destinations : List[object]
+	Value : List[float]
+	Blend : List[object]
+@typetree_defined
+class Live2D_Cubism_Framework_HarmonicMotion_CubismHarmonicMotionController(MonoBehaviour):
+	BlendMode : int
+	ChannelTimescales : List[float]
+@typetree_defined
+class Live2D_Cubism_Framework_HarmonicMotion_CubismHarmonicMotionDirection(MonoBehaviour):
+	value__ : int
+@typetree_defined
+class Live2D_Cubism_Framework_HarmonicMotion_CubismHarmonicMotionParameter(MonoBehaviour):
+	Channel : int
+	Direction : int
+	NormalizedOrigin : float
+	NormalizedRange : float
+	Duration : float
+@typetree_defined
+class Live2D_Cubism_Framework_ICubismUpdatable(MonoBehaviour):
+	pass
+@typetree_defined
+class Live2D_Cubism_Framework_Json_CubismBuiltinPickers(MonoBehaviour):
+	pass
+@typetree_defined
+class Live2D_Cubism_Framework_Json_CubismExp3Json(MonoBehaviour):
+	Type : str
+	FadeInTime : float
+	FadeOutTime : float
+	Parameters : List[object]
+@typetree_defined
+class Live2D_Cubism_Framework_Json_CubismJsonParser(MonoBehaviour):
+	pass
+@typetree_defined
+class Live2D_Cubism_Framework_Json_CubismModel3Json(MonoBehaviour):
+	Version : int
+	FileReferences : object # XXX: Fallback of SerializableFileReferences
+	Groups : List[object]
+	HitAreas : List[object]
+@typetree_defined
+class Live2D_Cubism_Framework_Json_CubismMotion3Json(MonoBehaviour):
+	Version : int
+	Meta : object # XXX: Fallback of SerializableMeta
+	Curves : List[object]
+	UserData : List[object]
+@typetree_defined
+class Live2D_Cubism_Framework_Json_CubismPhysics3Json(MonoBehaviour):
+	Version : int
+	Meta : object # XXX: Fallback of SerializableMeta
+	PhysicsSettings : List[object]
+@typetree_defined
+class Live2D_Cubism_Framework_Json_CubismPose3Json(MonoBehaviour):
+	Type : str
+	FadeInTime : float
+@typetree_defined
+class Live2D_Cubism_Framework_Json_CubismUserData3Json(MonoBehaviour):
+	Version : int
+	Meta : object # XXX: Fallback of SerializableMeta
+	UserData : List[object]
+@typetree_defined
+class Live2D_Cubism_Framework_Json_Value(MonoBehaviour):
+	pass
+@typetree_defined
+class Live2D_Cubism_Framework_LookAt_CubismLookAxis(MonoBehaviour):
+	value__ : int
+@typetree_defined
+class Live2D_Cubism_Framework_LookAt_CubismLookController(MonoBehaviour):
+	BlendMode : int
+	_target : PPtr[Object]
+	Center : PPtr[Transform]
+	Damping : float
+@typetree_defined
+class Live2D_Cubism_Framework_LookAt_CubismLookParameter(MonoBehaviour):
+	Axis : int
+	Factor : float
+@typetree_defined
+class Live2D_Cubism_Framework_LookAt_CubismLookTargetBehaviour(MonoBehaviour):
+	pass
+@typetree_defined
+class Live2D_Cubism_Framework_LookAt_ICubismLookTarget(MonoBehaviour):
+	pass
+@typetree_defined
+class Live2D_Cubism_Framework_Motion_CubismMotionController(MonoBehaviour):
+	LayerCount : int
+@typetree_defined
+class Live2D_Cubism_Framework_Motion_CubismMotionLayer(MonoBehaviour):
+	pass
+@typetree_defined
+class Live2D_Cubism_Framework_Motion_CubismMotionState(MonoBehaviour):
+	pass
+@typetree_defined
+class Live2D_Cubism_Framework_MotionFade_CubismFadeController(MonoBehaviour):
+	CubismFadeMotionList : PPtr[object]
+@typetree_defined
+class Live2D_Cubism_Framework_MotionFade_CubismFadeCurveType(MonoBehaviour):
+	value__ : int
+@typetree_defined
+class Live2D_Cubism_Framework_MotionFade_CubismFadeMath(MonoBehaviour):
+	pass
+@typetree_defined
+class Live2D_Cubism_Framework_MotionFade_CubismFadeMotionData(MonoBehaviour):
+	MotionName : str
+	FadeInTime : float
+	FadeOutTime : float
+	ParameterIds : List[str]
+	ParameterCurves : List[AnimationCurve]
+	ParameterFadeInTimes : List[float]
+	ParameterFadeOutTimes : List[float]
+	MotionLength : float
+@typetree_defined
+class Live2D_Cubism_Framework_MotionFade_CubismFadeMotionList(MonoBehaviour):
+	MotionInstanceIds : List[int]
+	CubismFadeMotionObjects : List[object]
+@typetree_defined
+class Live2D_Cubism_Framework_MotionFade_CubismFadePlayingMotion(MonoBehaviour):
+	StartTime : float
+	EndTime : float
+	FadeInStartTime : float
+	Speed : float
+	Motion : PPtr[object]
+@typetree_defined
+class Live2D_Cubism_Framework_MotionFade_CubismFadeStateObserver(MonoBehaviour):
+	pass
+@typetree_defined
+class Live2D_Cubism_Framework_MotionFade_ICubismFadeState(MonoBehaviour):
+	pass
+@typetree_defined
+class Live2D_Cubism_Framework_MouthMovement_CubismAudioMouthInput(MonoBehaviour):
+	AudioInput : PPtr[AudioSource]
+	SamplingQuality : int
+	Gain : float
+	Smoothing : float
+@typetree_defined
+class Live2D_Cubism_Framework_MouthMovement_CubismAudioSamplingQuality(MonoBehaviour):
+	value__ : int
+@typetree_defined
+class Live2D_Cubism_Framework_MouthMovement_CubismAutoMouthInput(MonoBehaviour):
+	Timescale : float
+@typetree_defined
+class Live2D_Cubism_Framework_MouthMovement_CubismMouthController(MonoBehaviour):
+	BlendMode : int
+	MouthOpening : float
+@typetree_defined
+class Live2D_Cubism_Framework_MouthMovement_CubismMouthParameter(MonoBehaviour):
+	pass
+@typetree_defined
+class Live2D_Cubism_Framework_ObjectExtensionMethods(MonoBehaviour):
+	pass
+@typetree_defined
+class Live2D_Cubism_Framework_Physics_CubismPhysics(MonoBehaviour):
+	pass
+@typetree_defined
+class Live2D_Cubism_Framework_Physics_CubismPhysicsController(MonoBehaviour):
+	_rig : object # XXX: Fallback of CubismPhysicsRig
+@typetree_defined
+class Live2D_Cubism_Framework_Physics_CubismPhysicsInput(MonoBehaviour):
+	SourceId : str
+	ScaleOfTranslation : Vector2f
+	AngleScale : float
+	Weight : float
+	SourceComponent : int
+	IsInverted : bool
+@typetree_defined
+class Live2D_Cubism_Framework_Physics_CubismPhysicsMath(MonoBehaviour):
+	pass
+@typetree_defined
+class Live2D_Cubism_Framework_Physics_CubismPhysicsNormalization(MonoBehaviour):
+	Position : object # XXX: Fallback of CubismPhysicsNormalizationTuplet
+	Angle : object # XXX: Fallback of CubismPhysicsNormalizationTuplet
+@typetree_defined
+class Live2D_Cubism_Framework_Physics_CubismPhysicsNormalizationTuplet(MonoBehaviour):
+	Maximum : float
+	Minimum : float
+	Default : float
+@typetree_defined
+class Live2D_Cubism_Framework_Physics_CubismPhysicsOutput(MonoBehaviour):
+	DestinationId : str
+	ParticleIndex : int
+	TranslationScale : Vector2f
+	AngleScale : float
+	Weight : float
+	SourceComponent : int
+	IsInverted : bool
+@typetree_defined
+class Live2D_Cubism_Framework_Physics_CubismPhysicsParticle(MonoBehaviour):
+	InitialPosition : Vector2f
+	Mobility : float
+	Delay : float
+	Acceleration : float
+	Radius : float
+@typetree_defined
+class Live2D_Cubism_Framework_Physics_CubismPhysicsRig(MonoBehaviour):
+	SubRigs : List[object]
+@typetree_defined
+class Live2D_Cubism_Framework_Physics_CubismPhysicsSourceComponent(MonoBehaviour):
+	value__ : int
+@typetree_defined
+class Live2D_Cubism_Framework_Physics_CubismPhysicsSubRig(MonoBehaviour):
+	Input : List[object]
+	Output : List[object]
+	Particles : List[object]
+	Normalization : object # XXX: Fallback of CubismPhysicsNormalization
+@typetree_defined
+class Live2D_Cubism_Framework_Pose_CubismPoseController(MonoBehaviour):
+	defaultPoseIndex : int
+@typetree_defined
+class Live2D_Cubism_Framework_Pose_CubismPoseData(MonoBehaviour):
+	PosePart : PPtr[object]
+	Part : PPtr[object]
+	LinkParts : List[object]
+	Opacity : float
+@typetree_defined
+class Live2D_Cubism_Framework_Pose_CubismPosePart(MonoBehaviour):
+	GroupIndex : int
+	PartIndex : int
+	Link : List[str]
+@typetree_defined
+class Live2D_Cubism_Framework_Raycasting_CubismRaycastable(MonoBehaviour):
+	Precision : int
+@typetree_defined
+class Live2D_Cubism_Framework_Raycasting_CubismRaycastablePrecision(MonoBehaviour):
+	value__ : int
+@typetree_defined
+class Live2D_Cubism_Framework_Raycasting_CubismRaycaster(MonoBehaviour):
+	pass
+@typetree_defined
+class Live2D_Cubism_Framework_Raycasting_CubismRaycastHit(MonoBehaviour):
+	Drawable : PPtr[object]
+	Distance : float
+	LocalPosition : Vector3f
+	WorldPosition : Vector3f
+@typetree_defined
+class Live2D_Cubism_Framework_Tasking_CubismBuiltinAsyncTaskHandler(MonoBehaviour):
+	pass
+@typetree_defined
+class Live2D_Cubism_Framework_UserData_CubismUserDataBody(MonoBehaviour):
+	Id : str
+	Value : str
+@typetree_defined
+class Live2D_Cubism_Framework_UserData_CubismUserDataTag(MonoBehaviour):
+	_body : object # XXX: Fallback of CubismUserDataBody
+@typetree_defined
+class Live2D_Cubism_Framework_UserData_CubismUserDataTargetType(MonoBehaviour):
+	value__ : int
+@typetree_defined
+class Live2D_Cubism_Rendering_ArrayExtensionMethods(MonoBehaviour):
+	pass
+@typetree_defined
+class Live2D_Cubism_Rendering_CubismBuiltinMaterials(MonoBehaviour):
+	pass
+@typetree_defined
+class Live2D_Cubism_Rendering_CubismBuiltinShaders(MonoBehaviour):
+	pass
+@typetree_defined
+class Live2D_Cubism_Rendering_CubismRenderController(MonoBehaviour):
+	Opacity : float
+	_lastOpacity : float
+	_sortingLayerId : int
+	_sortingMode : int
+	_sortingOrder : int
+	CameraToFace : PPtr[Camera]
+	_drawOrderHandler : PPtr[Object]
+	_opacityHandler : PPtr[Object]
+	_depthOffset : float
+@typetree_defined
+class Live2D_Cubism_Rendering_CubismRenderer(MonoBehaviour):
+	_localSortingOrder : int
+	_color : ColorRGBA
+	_mainTexture : PPtr[Texture2D]
+	_sortingMode : int
+	_sortingOrder : int
+	_renderOrder : int
+	_depthOffset : float
+	_opacity : float
+@typetree_defined
+class Live2D_Cubism_Rendering_CubismShaderVariables(MonoBehaviour):
+	pass
+@typetree_defined
+class Live2D_Cubism_Rendering_CubismSortingMode(MonoBehaviour):
+	value__ : int
+@typetree_defined
+class Live2D_Cubism_Rendering_CubismSortingModeExtensionMethods(MonoBehaviour):
+	pass
+@typetree_defined
+class Live2D_Cubism_Rendering_ICubismDrawOrderHandler(MonoBehaviour):
+	pass
+@typetree_defined
+class Live2D_Cubism_Rendering_ICubismOpacityHandler(MonoBehaviour):
+	pass
+@typetree_defined
+class Live2D_Cubism_Rendering_Masking_CubismMaskCommandBuffer(MonoBehaviour):
+	pass
+@typetree_defined
+class Live2D_Cubism_Rendering_Masking_CubismMaskController(MonoBehaviour):
+	_maskTexture : PPtr[object]
+@typetree_defined
+class Live2D_Cubism_Rendering_Masking_CubismMaskMaskedJunction(MonoBehaviour):
+	pass
+@typetree_defined
+class Live2D_Cubism_Rendering_Masking_CubismMaskProperties(MonoBehaviour):
+	Texture : PPtr[object]
+@typetree_defined
+class Live2D_Cubism_Rendering_Masking_CubismMaskRenderer(MonoBehaviour):
+	pass
+@typetree_defined
+class Live2D_Cubism_Rendering_Masking_CubismMaskRendererExtensionMethods(MonoBehaviour):
+	pass
+@typetree_defined
+class Live2D_Cubism_Rendering_Masking_CubismMaskTexture(MonoBehaviour):
+	_size : int
+	_subdivisions : int
+@typetree_defined
+class Live2D_Cubism_Rendering_Masking_CubismMaskTile(MonoBehaviour):
+	Channel : float
+	Column : float
+	Row : float
+	Size : float
+@typetree_defined
+class Live2D_Cubism_Rendering_Masking_CubismMaskTilePool(MonoBehaviour):
+	pass
+@typetree_defined
+class Live2D_Cubism_Rendering_Masking_CubismMaskTransform(MonoBehaviour):
+	Offset : Vector2f
+	Scale : float
+@typetree_defined
+class Live2D_Cubism_Rendering_Masking_ICubismMaskCommandSource(MonoBehaviour):
+	pass
+@typetree_defined
+class Live2D_Cubism_Rendering_Masking_ICubismMaskTextureCommandSource(MonoBehaviour):
+	pass
+@typetree_defined
+class Live2D_Cubism_Rendering_Masking_IntExtensionMethods(MonoBehaviour):
+	pass
+
+__classes__ = [CubismTaskHandler,Live2D_Cubism_Core_ArrayExtensionMethods,Live2D_Cubism_Core_ComponentExtensionMethods,Live2D_Cubism_Core_CubismDrawable,Live2D_Cubism_Core_CubismDynamicDrawableData,Live2D_Cubism_Core_CubismLogging,Live2D_Cubism_Core_CubismMoc,Live2D_Cubism_Core_CubismModel,Live2D_Cubism_Core_CubismParameter,Live2D_Cubism_Core_CubismPart,Live2D_Cubism_Core_CubismTaskableModel,Live2D_Cubism_Core_CubismTaskQueue,Live2D_Cubism_Core_GameObjectExtensionMethods,Live2D_Cubism_Core_ICubismTask,Live2D_Cubism_Core_Unmanaged_ByteExtensionMethods,Live2D_Cubism_Core_Unmanaged_CubismCoreDll,Live2D_Cubism_Core_Unmanaged_CubismUnmanagedByteArrayView,Live2D_Cubism_Core_Unmanaged_CubismUnmanagedCanvasInformation,Live2D_Cubism_Core_Unmanaged_CubismUnmanagedDrawables,Live2D_Cubism_Core_Unmanaged_CubismUnmanagedFloatArrayView,Live2D_Cubism_Core_Unmanaged_CubismUnmanagedIntArrayView,Live2D_Cubism_Core_Unmanaged_CubismUnmanagedMemory,Live2D_Cubism_Core_Unmanaged_CubismUnmanagedMoc,Live2D_Cubism_Core_Unmanaged_CubismUnmanagedModel,Live2D_Cubism_Core_Unmanaged_CubismUnmanagedParameters,Live2D_Cubism_Core_Unmanaged_CubismUnmanagedParts,Live2D_Cubism_Core_Unmanaged_CubismUnmanagedUshortArrayView,Live2D_Cubism_Framework_ComponentExtensionMethods,Live2D_Cubism_Framework_CubismAutoEyeBlinkInput,Live2D_Cubism_Framework_CubismDontMoveOnReimportAttribute,Live2D_Cubism_Framework_CubismEyeBlinkController,Live2D_Cubism_Framework_CubismEyeBlinkParameter,Live2D_Cubism_Framework_CubismHitDrawable,Live2D_Cubism_Framework_CubismMoveOnReimportCopyComponentsOnly,Live2D_Cubism_Framework_CubismParameterBlendMode,Live2D_Cubism_Framework_CubismParameterExtensionMethods,Live2D_Cubism_Framework_CubismParametersInspector,Live2D_Cubism_Framework_CubismParameterStore,Live2D_Cubism_Framework_CubismPartsInspector,Live2D_Cubism_Framework_CubismUpdateController,Live2D_Cubism_Framework_Expression_CubismExpressionController,Live2D_Cubism_Framework_Expression_CubismExpressionData,Live2D_Cubism_Framework_Expression_CubismExpressionList,Live2D_Cubism_Framework_Expression_CubismPlayingExpression,Live2D_Cubism_Framework_HarmonicMotion_CubismHarmonicMotionController,Live2D_Cubism_Framework_HarmonicMotion_CubismHarmonicMotionDirection,Live2D_Cubism_Framework_HarmonicMotion_CubismHarmonicMotionParameter,Live2D_Cubism_Framework_ICubismUpdatable,Live2D_Cubism_Framework_Json_CubismBuiltinPickers,Live2D_Cubism_Framework_Json_CubismExp3Json,Live2D_Cubism_Framework_Json_CubismJsonParser,Live2D_Cubism_Framework_Json_CubismModel3Json,Live2D_Cubism_Framework_Json_CubismMotion3Json,Live2D_Cubism_Framework_Json_CubismPhysics3Json,Live2D_Cubism_Framework_Json_CubismPose3Json,Live2D_Cubism_Framework_Json_CubismUserData3Json,Live2D_Cubism_Framework_Json_Value,Live2D_Cubism_Framework_LookAt_CubismLookAxis,Live2D_Cubism_Framework_LookAt_CubismLookController,Live2D_Cubism_Framework_LookAt_CubismLookParameter,Live2D_Cubism_Framework_LookAt_CubismLookTargetBehaviour,Live2D_Cubism_Framework_LookAt_ICubismLookTarget,Live2D_Cubism_Framework_Motion_CubismMotionController,Live2D_Cubism_Framework_Motion_CubismMotionLayer,Live2D_Cubism_Framework_Motion_CubismMotionState,Live2D_Cubism_Framework_MotionFade_CubismFadeController,Live2D_Cubism_Framework_MotionFade_CubismFadeCurveType,Live2D_Cubism_Framework_MotionFade_CubismFadeMath,Live2D_Cubism_Framework_MotionFade_CubismFadeMotionData,Live2D_Cubism_Framework_MotionFade_CubismFadeMotionList,Live2D_Cubism_Framework_MotionFade_CubismFadePlayingMotion,Live2D_Cubism_Framework_MotionFade_CubismFadeStateObserver,Live2D_Cubism_Framework_MotionFade_ICubismFadeState,Live2D_Cubism_Framework_MouthMovement_CubismAudioMouthInput,Live2D_Cubism_Framework_MouthMovement_CubismAudioSamplingQuality,Live2D_Cubism_Framework_MouthMovement_CubismAutoMouthInput,Live2D_Cubism_Framework_MouthMovement_CubismMouthController,Live2D_Cubism_Framework_MouthMovement_CubismMouthParameter,Live2D_Cubism_Framework_ObjectExtensionMethods,Live2D_Cubism_Framework_Physics_CubismPhysics,Live2D_Cubism_Framework_Physics_CubismPhysicsController,Live2D_Cubism_Framework_Physics_CubismPhysicsInput,Live2D_Cubism_Framework_Physics_CubismPhysicsMath,Live2D_Cubism_Framework_Physics_CubismPhysicsNormalization,Live2D_Cubism_Framework_Physics_CubismPhysicsNormalizationTuplet,Live2D_Cubism_Framework_Physics_CubismPhysicsOutput,Live2D_Cubism_Framework_Physics_CubismPhysicsParticle,Live2D_Cubism_Framework_Physics_CubismPhysicsRig,Live2D_Cubism_Framework_Physics_CubismPhysicsSourceComponent,Live2D_Cubism_Framework_Physics_CubismPhysicsSubRig,Live2D_Cubism_Framework_Pose_CubismPoseController,Live2D_Cubism_Framework_Pose_CubismPoseData,Live2D_Cubism_Framework_Pose_CubismPosePart,Live2D_Cubism_Framework_Raycasting_CubismRaycastable,Live2D_Cubism_Framework_Raycasting_CubismRaycastablePrecision,Live2D_Cubism_Framework_Raycasting_CubismRaycaster,Live2D_Cubism_Framework_Raycasting_CubismRaycastHit,Live2D_Cubism_Framework_Tasking_CubismBuiltinAsyncTaskHandler,Live2D_Cubism_Framework_UserData_CubismUserDataBody,Live2D_Cubism_Framework_UserData_CubismUserDataTag,Live2D_Cubism_Framework_UserData_CubismUserDataTargetType,Live2D_Cubism_Rendering_ArrayExtensionMethods,Live2D_Cubism_Rendering_CubismBuiltinMaterials,Live2D_Cubism_Rendering_CubismBuiltinShaders,Live2D_Cubism_Rendering_CubismRenderController,Live2D_Cubism_Rendering_CubismRenderer,Live2D_Cubism_Rendering_CubismShaderVariables,Live2D_Cubism_Rendering_CubismSortingMode,Live2D_Cubism_Rendering_CubismSortingModeExtensionMethods,Live2D_Cubism_Rendering_ICubismDrawOrderHandler,Live2D_Cubism_Rendering_ICubismOpacityHandler,Live2D_Cubism_Rendering_Masking_CubismMaskCommandBuffer,Live2D_Cubism_Rendering_Masking_CubismMaskController,Live2D_Cubism_Rendering_Masking_CubismMaskMaskedJunction,Live2D_Cubism_Rendering_Masking_CubismMaskProperties,Live2D_Cubism_Rendering_Masking_CubismMaskRenderer,Live2D_Cubism_Rendering_Masking_CubismMaskRendererExtensionMethods,Live2D_Cubism_Rendering_Masking_CubismMaskTexture,Live2D_Cubism_Rendering_Masking_CubismMaskTile,Live2D_Cubism_Rendering_Masking_CubismMaskTilePool,Live2D_Cubism_Rendering_Masking_CubismMaskTransform,Live2D_Cubism_Rendering_Masking_ICubismMaskCommandSource,Live2D_Cubism_Rendering_Masking_ICubismMaskTextureCommandSource,Live2D_Cubism_Rendering_Masking_IntExtensionMethods]
+
 TYPETREE_DEFS = {
     "CubismTaskHandler": [
         {
@@ -13537,416 +14052,5 @@ TYPETREE_DEFS = {
         }
     ]
 }
-class CubismTaskHandler(MonoBehaviour):
-	def __init__(self):pass
-class ArrayExtensionMethods(MonoBehaviour):
-	def __init__(self):pass
-class ComponentExtensionMethods(MonoBehaviour):
-	def __init__(self):pass
-class CubismDrawable(MonoBehaviour):
-	_unmanagedIndex : int
-	def __init__(self):pass
-class CubismDynamicDrawableData(MonoBehaviour):
-	def __init__(self):pass
-class CubismLogging(MonoBehaviour):
-	def __init__(self):pass
-class CubismMoc(MonoBehaviour):
-	_bytes : bytes
-	def __init__(self):pass
-class CubismModel(MonoBehaviour):
-	_moc : PPtr[CubismMoc]
-	def __init__(self):pass
-class CubismParameter(MonoBehaviour):
-	_unmanagedIndex : int
-	Value : float
-	def __init__(self):pass
-class CubismPart(MonoBehaviour):
-	_unmanagedIndex : int
-	Opacity : float
-	def __init__(self):pass
-class CubismTaskableModel(MonoBehaviour):
-	def __init__(self):pass
-class CubismTaskQueue(MonoBehaviour):
-	def __init__(self):pass
-class GameObjectExtensionMethods(MonoBehaviour):
-	def __init__(self):pass
-class ICubismTask(MonoBehaviour):
-	def __init__(self):pass
-class ByteExtensionMethods(MonoBehaviour):
-	def __init__(self):pass
-class CubismCoreDll(MonoBehaviour):
-	def __init__(self):pass
-class CubismUnmanagedByteArrayView(MonoBehaviour):
-	def __init__(self):pass
-class CubismUnmanagedCanvasInformation(MonoBehaviour):
-	def __init__(self):pass
-class CubismUnmanagedDrawables(MonoBehaviour):
-	def __init__(self):pass
-class CubismUnmanagedFloatArrayView(MonoBehaviour):
-	def __init__(self):pass
-class CubismUnmanagedIntArrayView(MonoBehaviour):
-	def __init__(self):pass
-class CubismUnmanagedMemory(MonoBehaviour):
-	def __init__(self):pass
-class CubismUnmanagedMoc(MonoBehaviour):
-	def __init__(self):pass
-class CubismUnmanagedModel(MonoBehaviour):
-	def __init__(self):pass
-class CubismUnmanagedParameters(MonoBehaviour):
-	def __init__(self):pass
-class CubismUnmanagedParts(MonoBehaviour):
-	def __init__(self):pass
-class CubismUnmanagedUshortArrayView(MonoBehaviour):
-	def __init__(self):pass
-class CubismAutoEyeBlinkInput(MonoBehaviour):
-	Mean : float
-	MaximumDeviation : float
-	Timescale : float
-	def __init__(self):pass
-class CubismDontMoveOnReimportAttribute(MonoBehaviour):
-	def __init__(self):pass
-class CubismEyeBlinkController(MonoBehaviour):
-	BlendMode : int
-	EyeOpening : float
-	def __init__(self):pass
-class CubismEyeBlinkParameter(MonoBehaviour):
-	def __init__(self):pass
-class CubismHitDrawable(MonoBehaviour):
-	Name : str
-	def __init__(self):pass
-class CubismMoveOnReimportCopyComponentsOnly(MonoBehaviour):
-	def __init__(self):pass
-class CubismParameterBlendMode(MonoBehaviour):
-	value__ : int
-	def __init__(self):pass
-class CubismParameterExtensionMethods(MonoBehaviour):
-	def __init__(self):pass
-class CubismParametersInspector(MonoBehaviour):
-	def __init__(self):pass
-class CubismParameterStore(MonoBehaviour):
-	def __init__(self):pass
-class CubismPartsInspector(MonoBehaviour):
-	def __init__(self):pass
-class CubismUpdateController(MonoBehaviour):
-	def __init__(self):pass
-class CubismExpressionData(MonoBehaviour):
-	Type : str
-	FadeInTime : float
-	FadeOutTime : float
-	Parameters : List[object]
-	def __init__(self):pass
-class CubismExpressionList(MonoBehaviour):
-	CubismExpressionObjects : List[CubismExpressionData]
-	def __init__(self):pass
-class CubismExpressionController(MonoBehaviour):
-	ExpressionsList : PPtr[CubismExpressionList]
-	CurrentExpressionIndex : int
-	def __init__(self):pass
-class CubismPlayingExpression(MonoBehaviour):
-	Type : str
-	FadeInTime : float
-	FadeOutTime : float
-	Weight : float
-	ExpressionUserTime : float
-	ExpressionEndTime : float
-	Destinations : List[CubismParameter]
-	Value : List[float]
-	Blend : List[CubismParameterBlendMode]
-	def __init__(self):pass
-class CubismHarmonicMotionController(MonoBehaviour):
-	BlendMode : int
-	ChannelTimescales : List[float]
-	def __init__(self):pass
-class CubismHarmonicMotionDirection(MonoBehaviour):
-	value__ : int
-	def __init__(self):pass
-class CubismHarmonicMotionParameter(MonoBehaviour):
-	Channel : int
-	Direction : int
-	NormalizedOrigin : float
-	NormalizedRange : float
-	Duration : float
-	def __init__(self):pass
-class ICubismUpdatable(MonoBehaviour):
-	def __init__(self):pass
-class CubismBuiltinPickers(MonoBehaviour):
-	def __init__(self):pass
-class CubismExp3Json(MonoBehaviour):
-	Type : str
-	FadeInTime : float
-	FadeOutTime : float
-	Parameters : List[object]
-	def __init__(self):pass
-class CubismJsonParser(MonoBehaviour):
-	def __init__(self):pass
-class CubismModel3Json(MonoBehaviour):
-	Version : int
-	FileReferences : object
-	Groups : List[object]
-	HitAreas : List[object]
-	def __init__(self):pass
-class CubismMotion3Json(MonoBehaviour):
-	Version : int
-	Meta : object
-	Curves : List[object]
-	UserData : List[object]
-	def __init__(self):pass
-class CubismPhysics3Json(MonoBehaviour):
-	Version : int
-	Meta : object
-	PhysicsSettings : List[object]
-	def __init__(self):pass
-class CubismPose3Json(MonoBehaviour):
-	Type : str
-	FadeInTime : float
-	def __init__(self):pass
-class CubismUserData3Json(MonoBehaviour):
-	Version : int
-	Meta : object
-	UserData : List[object]
-	def __init__(self):pass
-class Value(MonoBehaviour):
-	def __init__(self):pass
-class CubismLookAxis(MonoBehaviour):
-	value__ : int
-	def __init__(self):pass
-class CubismLookController(MonoBehaviour):
-	BlendMode : int
-	_target : PPtr[Object]
-	Center : PPtr[Transform]
-	Damping : float
-	def __init__(self):pass
-class CubismLookParameter(MonoBehaviour):
-	Axis : int
-	Factor : float
-	def __init__(self):pass
-class CubismLookTargetBehaviour(MonoBehaviour):
-	def __init__(self):pass
-class ICubismLookTarget(MonoBehaviour):
-	def __init__(self):pass
-class CubismMotionController(MonoBehaviour):
-	LayerCount : int
-	def __init__(self):pass
-class CubismMotionLayer(MonoBehaviour):
-	def __init__(self):pass
-class CubismMotionState(MonoBehaviour):
-	def __init__(self):pass
-class CubismFadeMotionData(MonoBehaviour):
-	MotionName : str
-	FadeInTime : float
-	FadeOutTime : float
-	ParameterIds : List[str]
-	ParameterCurves : List[AnimationCurve]
-	ParameterFadeInTimes : List[float]
-	ParameterFadeOutTimes : List[float]
-	MotionLength : float
-	def __init__(self):pass
-class CubismFadeMotionList(MonoBehaviour):
-	MotionInstanceIds : List[int]
-	CubismFadeMotionObjects : List[CubismFadeMotionData]
-	def __init__(self):pass
-class CubismFadeController(MonoBehaviour):
-	CubismFadeMotionList : PPtr[CubismFadeMotionList]
-	def __init__(self):pass
-class CubismFadeCurveType(MonoBehaviour):
-	value__ : int
-	def __init__(self):pass
-class CubismFadeMath(MonoBehaviour):
-	def __init__(self):pass
-class CubismFadePlayingMotion(MonoBehaviour):
-	StartTime : float
-	EndTime : float
-	FadeInStartTime : float
-	Speed : float
-	Motion : PPtr[CubismFadeMotionData]
-	def __init__(self):pass
-class CubismFadeStateObserver(MonoBehaviour):
-	def __init__(self):pass
-class ICubismFadeState(MonoBehaviour):
-	def __init__(self):pass
-class CubismAudioMouthInput(MonoBehaviour):
-	AudioInput : PPtr[AudioSource]
-	SamplingQuality : int
-	Gain : float
-	Smoothing : float
-	def __init__(self):pass
-class CubismAudioSamplingQuality(MonoBehaviour):
-	value__ : int
-	def __init__(self):pass
-class CubismAutoMouthInput(MonoBehaviour):
-	Timescale : float
-	def __init__(self):pass
-class CubismMouthController(MonoBehaviour):
-	BlendMode : int
-	MouthOpening : float
-	def __init__(self):pass
-class CubismMouthParameter(MonoBehaviour):
-	def __init__(self):pass
-class ObjectExtensionMethods(MonoBehaviour):
-	def __init__(self):pass
-class CubismPhysics(MonoBehaviour):
-	def __init__(self):pass
-class CubismPhysicsInput(MonoBehaviour):
-	SourceId : str
-	ScaleOfTranslation : Vector2f
-	AngleScale : float
-	Weight : float
-	SourceComponent : int
-	IsInverted : bool
-	def __init__(self):pass
-class CubismPhysicsNormalizationTuplet(MonoBehaviour):
-	Maximum : float
-	Minimum : float
-	Default : float
-	def __init__(self):pass
-class CubismPhysicsNormalization(MonoBehaviour):
-	Position : CubismPhysicsNormalizationTuplet
-	Angle : CubismPhysicsNormalizationTuplet
-	def __init__(self):pass
-class CubismPhysicsOutput(MonoBehaviour):
-	DestinationId : str
-	ParticleIndex : int
-	TranslationScale : Vector2f
-	AngleScale : float
-	Weight : float
-	SourceComponent : int
-	IsInverted : bool
-	def __init__(self):pass
-class CubismPhysicsParticle(MonoBehaviour):
-	InitialPosition : Vector2f
-	Mobility : float
-	Delay : float
-	Acceleration : float
-	Radius : float
-	def __init__(self):pass
-class CubismPhysicsSubRig(MonoBehaviour):
-	Input : List[CubismPhysicsInput]
-	Output : List[CubismPhysicsOutput]
-	Particles : List[CubismPhysicsParticle]
-	Normalization : CubismPhysicsNormalization
-	def __init__(self):pass
-class CubismPhysicsRig(MonoBehaviour):
-	SubRigs : List[CubismPhysicsSubRig]
-	def __init__(self):pass
-class CubismPhysicsController(MonoBehaviour):
-	_rig : CubismPhysicsRig
-	def __init__(self):pass
-class CubismPhysicsMath(MonoBehaviour):
-	def __init__(self):pass
-class CubismPhysicsSourceComponent(MonoBehaviour):
-	value__ : int
-	def __init__(self):pass
-class CubismPoseController(MonoBehaviour):
-	defaultPoseIndex : int
-	def __init__(self):pass
-class CubismPosePart(MonoBehaviour):
-	GroupIndex : int
-	PartIndex : int
-	Link : List[str]
-	def __init__(self):pass
-class CubismPoseData(MonoBehaviour):
-	PosePart : PPtr[CubismPosePart]
-	Part : PPtr[CubismPart]
-	LinkParts : List[CubismPart]
-	Opacity : float
-	def __init__(self):pass
-class CubismRaycastable(MonoBehaviour):
-	Precision : int
-	def __init__(self):pass
-class CubismRaycastablePrecision(MonoBehaviour):
-	value__ : int
-	def __init__(self):pass
-class CubismRaycaster(MonoBehaviour):
-	def __init__(self):pass
-class CubismRaycastHit(MonoBehaviour):
-	Drawable : PPtr[CubismDrawable]
-	Distance : float
-	LocalPosition : Vector3f
-	WorldPosition : Vector3f
-	def __init__(self):pass
-class CubismBuiltinAsyncTaskHandler(MonoBehaviour):
-	def __init__(self):pass
-class CubismUserDataBody(MonoBehaviour):
-	Id : str
-	Value : str
-	def __init__(self):pass
-class CubismUserDataTag(MonoBehaviour):
-	_body : CubismUserDataBody
-	def __init__(self):pass
-class CubismUserDataTargetType(MonoBehaviour):
-	value__ : int
-	def __init__(self):pass
-class CubismBuiltinMaterials(MonoBehaviour):
-	def __init__(self):pass
-class CubismBuiltinShaders(MonoBehaviour):
-	def __init__(self):pass
-class CubismRenderController(MonoBehaviour):
-	Opacity : float
-	_lastOpacity : float
-	_sortingLayerId : int
-	_sortingMode : int
-	_sortingOrder : int
-	CameraToFace : PPtr[Camera]
-	_drawOrderHandler : PPtr[Object]
-	_opacityHandler : PPtr[Object]
-	_depthOffset : float
-	def __init__(self):pass
-class CubismRenderer(MonoBehaviour):
-	_localSortingOrder : int
-	_color : ColorRGBA
-	_mainTexture : PPtr[Texture2D]
-	_sortingMode : int
-	_sortingOrder : int
-	_renderOrder : int
-	_depthOffset : float
-	_opacity : float
-	def __init__(self):pass
-class CubismShaderVariables(MonoBehaviour):
-	def __init__(self):pass
-class CubismSortingMode(MonoBehaviour):
-	value__ : int
-	def __init__(self):pass
-class CubismSortingModeExtensionMethods(MonoBehaviour):
-	def __init__(self):pass
-class ICubismDrawOrderHandler(MonoBehaviour):
-	def __init__(self):pass
-class ICubismOpacityHandler(MonoBehaviour):
-	def __init__(self):pass
-class CubismMaskCommandBuffer(MonoBehaviour):
-	def __init__(self):pass
-class CubismMaskTexture(MonoBehaviour):
-	_size : int
-	_subdivisions : int
-	def __init__(self):pass
-class CubismMaskController(MonoBehaviour):
-	_maskTexture : PPtr[CubismMaskTexture]
-	def __init__(self):pass
-class CubismMaskMaskedJunction(MonoBehaviour):
-	def __init__(self):pass
-class CubismMaskProperties(MonoBehaviour):
-	Texture : PPtr[CubismMaskTexture]
-	def __init__(self):pass
-class CubismMaskRenderer(MonoBehaviour):
-	def __init__(self):pass
-class CubismMaskRendererExtensionMethods(MonoBehaviour):
-	def __init__(self):pass
-class CubismMaskTile(MonoBehaviour):
-	Channel : float
-	Column : float
-	Row : float
-	Size : float
-	def __init__(self):pass
-class CubismMaskTilePool(MonoBehaviour):
-	def __init__(self):pass
-class CubismMaskTransform(MonoBehaviour):
-	Offset : Vector2f
-	Scale : float
-	def __init__(self):pass
-class ICubismMaskCommandSource(MonoBehaviour):
-	def __init__(self):pass
-class ICubismMaskTextureCommandSource(MonoBehaviour):
-	def __init__(self):pass
-class IntExtensionMethods(MonoBehaviour):
-	def __init__(self):pass
-__classes__ = [CubismTaskHandler,ArrayExtensionMethods,ComponentExtensionMethods,CubismDrawable,CubismDynamicDrawableData,CubismLogging,CubismMoc,CubismModel,CubismParameter,CubismPart,CubismTaskableModel,CubismTaskQueue,GameObjectExtensionMethods,ICubismTask,ByteExtensionMethods,CubismCoreDll,CubismUnmanagedByteArrayView,CubismUnmanagedCanvasInformation,CubismUnmanagedDrawables,CubismUnmanagedFloatArrayView,CubismUnmanagedIntArrayView,CubismUnmanagedMemory,CubismUnmanagedMoc,CubismUnmanagedModel,CubismUnmanagedParameters,CubismUnmanagedParts,CubismUnmanagedUshortArrayView,CubismAutoEyeBlinkInput,CubismDontMoveOnReimportAttribute,CubismEyeBlinkController,CubismEyeBlinkParameter,CubismHitDrawable,CubismMoveOnReimportCopyComponentsOnly,CubismParameterBlendMode,CubismParameterExtensionMethods,CubismParametersInspector,CubismParameterStore,CubismPartsInspector,CubismUpdateController,CubismExpressionData,CubismExpressionList,CubismExpressionController,CubismPlayingExpression,CubismHarmonicMotionController,CubismHarmonicMotionDirection,CubismHarmonicMotionParameter,ICubismUpdatable,CubismBuiltinPickers,CubismExp3Json,CubismJsonParser,CubismModel3Json,CubismMotion3Json,CubismPhysics3Json,CubismPose3Json,CubismUserData3Json,Value,CubismLookAxis,CubismLookController,CubismLookParameter,CubismLookTargetBehaviour,ICubismLookTarget,CubismMotionController,CubismMotionLayer,CubismMotionState,CubismFadeMotionData,CubismFadeMotionList,CubismFadeController,CubismFadeCurveType,CubismFadeMath,CubismFadePlayingMotion,CubismFadeStateObserver,ICubismFadeState,CubismAudioMouthInput,CubismAudioSamplingQuality,CubismAutoMouthInput,CubismMouthController,CubismMouthParameter,ObjectExtensionMethods,CubismPhysics,CubismPhysicsInput,CubismPhysicsNormalizationTuplet,CubismPhysicsNormalization,CubismPhysicsOutput,CubismPhysicsParticle,CubismPhysicsSubRig,CubismPhysicsRig,CubismPhysicsController,CubismPhysicsMath,CubismPhysicsSourceComponent,CubismPoseController,CubismPosePart,CubismPoseData,CubismRaycastable,CubismRaycastablePrecision,CubismRaycaster,CubismRaycastHit,CubismBuiltinAsyncTaskHandler,CubismUserDataBody,CubismUserDataTag,CubismUserDataTargetType,CubismBuiltinMaterials,CubismBuiltinShaders,CubismRenderController,CubismRenderer,CubismShaderVariables,CubismSortingMode,CubismSortingModeExtensionMethods,ICubismDrawOrderHandler,ICubismOpacityHandler,CubismMaskCommandBuffer,CubismMaskTexture,CubismMaskController,CubismMaskMaskedJunction,CubismMaskProperties,CubismMaskRenderer,CubismMaskRendererExtensionMethods,CubismMaskTile,CubismMaskTilePool,CubismMaskTransform,ICubismMaskCommandSource,ICubismMaskTextureCommandSource,IntExtensionMethods]
+
 # fmt: on

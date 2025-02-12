@@ -1,50 +1,43 @@
 import argparse
 import os
-import json
-import pathlib
-import UnityPy
-import io
 from zlib import crc32
-from typing import List
-from sssekai.fmt import moc3, motion3
-from UnityPy.enums import ClassIDType
+import UnityPy
 from UnityPy.classes import MonoBehaviour, Texture2D, PPtr
-from UnityPy.math import Vector2, Vector4
-from UnityPy.streams import EndianBinaryReader
+from UnityPy.enums import ClassIDType
+from UnityPy.files import ObjectReader
 from logging import getLogger
 import coloredlogs
 from . import __version__
 
 
-from UnityPy.helpers import TypeTreeHelper
-
-TypeTreeHelper.read_typetree_boost = False
+# from UnityPy.helpers import TypeTreeHelper
+# TypeTreeHelper.read_typetree_boost = False
 logger = getLogger("UnityPyLive2DExtractor")
 
 import UnityPyLive2DExtractor.typetree_generated as generated
 
-from typing import get_type_hints
 
-
-def evolve_type(clazz: object, d: dict | object):
-    """Ignores MRO and initializes the class with the given dictionary recursively
-
-    XXX: Hacky.
-    """
-    obj = clazz()
-    types = clazz.__annotations__
-    for k, sub in types.items():
-        reduce_arg = getattr(sub, "__args__", [None])[0]
-        if isinstance(d[k], list) and hasattr(reduce_arg, "__annotations__"):
-            setattr(obj, k, [evolve_type(reduce_arg, x) for x in d[k]])
-        elif isinstance(d[k], dict) and hasattr(sub, "__annotations__"):
-            setattr(obj, k, evolve_type(sub, d[k]))
-        else:
-            if isinstance(d[k], dict):
-                setattr(obj, k, sub(**d[k]))
+def read_from(reader: ObjectReader, **kwargs):
+    match reader.type:
+        case ClassIDType.MonoBehaviour:
+            mono: MonoBehaviour = reader.read(check_read=False)
+            script = mono.m_Script.read()
+            className = script.m_Name
+            if script.m_Namespace:
+                fullName = script.m_Namespace + "." + className
             else:
-                setattr(obj, k, sub(d[k]))
-    return obj
+                fullName = fullName
+            typetree = generated.TYPETREE_DEFS.get(fullName, None)
+
+            if typetree:
+                result = reader.read_typetree(typetree)
+                clazz = getattr(generated, className, None)
+                instance = clazz(**result)
+                return instance
+            else:
+                raise NotImplementedError(className)
+        case _:
+            return reader.read(**kwargs)
 
 
 def __main__():
@@ -74,21 +67,9 @@ def __main__():
         lambda reader: reader.type == ClassIDType.MonoBehaviour, env.objects
     ):
         # XXX: Manually mach by Script ClassName
-        mono: MonoBehaviour = reader.read(check_read=False)
-        script = mono.m_Script.read()
-        className = script.m_Name
-        if script.m_Namespace:
-            fullName = script.m_Namespace + "." + className
-        else:
-            fullName = fullName
-        typetree = generated.TYPETREE_DEFS.get(fullName, None)
-        if "Physics" in className:
-            pass
-        if typetree:
-            result = reader.read_typetree(typetree)
-            clazz = getattr(generated, className, None)
-            instance = evolve_type(clazz, result)
-            pass
+
+            if "Physics" in className:
+                print(instance)
         else:
             print(f"Unknown type: {className}")
         pass
