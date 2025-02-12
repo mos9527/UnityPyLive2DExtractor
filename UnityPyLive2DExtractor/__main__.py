@@ -23,10 +23,10 @@ T = TypeVar("T")
 logger = getLogger("UnityPyLive2DExtractor")
 
 from UnityPyLive2DExtractor import __version__
-from .generated import TYPETREE_DEFS
-from .generated.Live2D.Cubism.Core import CubismModel
-from .generated.Live2D.Cubism.Rendering import CubismRenderer
-from .generated.Live2D.Cubism.Framework.Physics import (
+from UnityPyLive2DExtractor.generated import TYPETREE_DEFS
+from UnityPyLive2DExtractor.generated.Live2D.Cubism.Core import CubismModel
+from UnityPyLive2DExtractor.generated.Live2D.Cubism.Rendering import CubismRenderer
+from UnityPyLive2DExtractor.generated.Live2D.Cubism.Framework.Physics import (
     CubismPhysicsNormalizationTuplet,
     CubismPhysicsNormalization,
     CubismPhysicsParticle,
