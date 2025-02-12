@@ -66,25 +66,39 @@ def typetree_defined(clazz : T) -> T:
 	- generally supports nested types, however untested and could be slow	
     - and ofc, zero type checking and safeguards :/	
 	"""
-	def __init__(cls, **d):		
+	RESERVED_KWS = {'object_reader'}
+    # Allow these to be propogated to the props
+	def __init__(self, **d):
+		def enusre_reserved(obj):
+			for k in RESERVED_KWS:
+				if hasattr(obj, k) and k in d:
+					setattr(obj, k, d[k])
+			return obj		
+		def reduce_init(clazz, **d):
+			types : dict = clazz.__annotations__
+			for k, sub in types.items():
+				if type(sub) == str:
+					sub = eval(sub) # attrs turns these into strings...why?
+				reduce_arg = getattr(sub, "__args__", [None])[0]
+				if isinstance(d[k], list) and hasattr(reduce_arg, "__annotations__"):
+					setattr(self, k, [enusre_reserved(reduce_arg(**x)) for x in d[k]])
+				elif isinstance(d[k], dict) and hasattr(sub, "__annotations__"):
+					setattr(self, k, enusre_reserved(sub(**d[k])))
+				else:
+					if isinstance(d[k], dict):
+						setattr(self, k, enusre_reserved(sub(**d[k])))
+					else:
+						setattr(self, k, enusre_reserved(sub(d[k])))			
 		for __base__ in clazz.__bases__:
 			types : dict = __base__.__annotations__
 			args = {k:d[k] for k in types if k in d}
 			if len(args) == len(types):
-				super(clazz, cls).__init__(**args)
-				for k in args: del d[k]
-		types : dict = clazz.__annotations__
-		for k, sub in types.items():
-			reduce_arg = getattr(sub, "__args__", [None])[0]
-			if isinstance(d[k], list) and hasattr(reduce_arg, "__annotations__"):
-				setattr(cls, k, [reduce_arg(**x) for x in d[k]])
-			elif isinstance(d[k], dict) and hasattr(sub, "__annotations__"):
-				setattr(cls, k, sub(**d[k]))
-			else:
-				if isinstance(d[k], dict):
-					setattr(cls, k, sub(**d[k]))
-				else:
-					setattr(cls, k, sub(d[k]))
+				super(clazz, self).__init__(**args)
+				reduce_init(__base__, **d)
+				for k in args:
+					if not k in RESERVED_KWS: del d[k]
+		reduce_init(clazz, **d)
+		enusre_reserved(self)
 	def __repr__(self) -> str:
 		return f"{clazz.__name__}({', '.join([f'{k}={getattr(self, k)!r}' for k in self.__annotations__])})"
 	clazz.__init__ = __init__

@@ -15,7 +15,8 @@ from . import __version__
 logger = getLogger("UnityPyLive2DExtractor")
 
 import UnityPyLive2DExtractor.generated as generated
-
+from .generated.Live2D.Cubism.Core import CubismModel
+from .generated.Live2D.Cubism.Rendering import CubismRenderer
 from .generated.Live2D.Cubism.Framework.Physics import (
     CubismPhysicsNormalizationTuplet,
     CubismPhysicsNormalization,
@@ -126,6 +127,7 @@ def dump(self: CubismPhysicsController):
     }
 
 
+# XXX: Is monkey patching this into UnityPy a good idea?
 def read_from(reader: ObjectReader, **kwargs):
     """Import generated classes by MonoBehavior script class type and read from reader"""
     import importlib
@@ -148,12 +150,16 @@ def read_from(reader: ObjectReader, **kwargs):
                     f".generated.{nameSpace}", package=__package__
                 )
                 clazz = getattr(nameSpace, className, None)
-                instance = clazz(**result)
+                instance = clazz(object_reader=reader, **result)
                 return instance
             else:
                 raise NotImplementedError(className)
         case _:
             return reader.read(**kwargs)
+
+
+def read_from_ptr(ptr: PPtr, reader: ObjectReader):
+    return read_from(ptr.deref(reader.assets_file))
 
 
 def __main__():
@@ -179,17 +185,34 @@ def __main__():
     )
     os.makedirs(args.outdir, exist_ok=True)
     env = UnityPy.load(args.infile)
+    objs = list()
     for reader in filter(
-        lambda reader: reader.type == ClassIDType.MonoBehaviour, env.objects
+        lambda reader: reader.type
+        in {
+            ClassIDType.MonoBehaviour,
+            ClassIDType.AnimationClip,
+            ClassIDType.GameObject,
+            ClassIDType.Texture2D,
+        },
+        env.objects,
     ):
         # XXX: Manually mach by Script ClassName
         try:
             obj = read_from(reader)
-            if type(obj) == CubismMoc:
-                print(obj)
+            objs.append(obj)
         except NotImplementedError as e:
-            logger.warning(f"Skipping {e}")
+            # logger.warning(f"Skipping {e}")
             continue
+    # fmt: off
+    # Comprehesions
+    mocs = [
+        read_from_ptr(model._moc, model)
+        for model in filter(lambda obj: isinstance(obj, CubismModel), objs)
+    ]
+    phys = [obj for obj in filter(lambda obj: isinstance(obj, CubismPhysicsController), objs)]
+    rnds = [obj for obj in filter(lambda obj: isinstance(obj, CubismRenderer), objs)]
+    # fmt: on
+    pass
 
 
 if __name__ == "__main__":
