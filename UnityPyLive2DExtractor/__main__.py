@@ -1,14 +1,23 @@
 import argparse
-import os
+import os, io, json
 from zlib import crc32
 import UnityPy
-from UnityPy.classes import MonoBehaviour, Texture2D, PPtr
+from typing import TypeVar
+from UnityPy.classes import (
+    MonoBehaviour,
+    GameObject,
+    Transform,
+    PPtr,
+    Texture2D,
+    AnimationClip,
+)
 from UnityPy.enums import ClassIDType
 from UnityPy.files import ObjectReader
 from logging import getLogger
 import coloredlogs
 from . import __version__
 
+T = TypeVar("T")
 
 # from UnityPy.helpers import TypeTreeHelper
 # TypeTreeHelper.read_typetree_boost = False
@@ -27,6 +36,9 @@ from .generated.Live2D.Cubism.Framework.Physics import (
     CubismPhysicsRig,
     CubismPhysicsController,
 )
+from sssekai.fmt.motion3 import to_motion3
+from sssekai.fmt.moc3 import read_moc3
+from sssekai.unity.AnimationClip import AnimationHelper
 
 
 def monkey_patch(cls):
@@ -109,10 +121,10 @@ def dump(self: CubismPhysicsController):
     return {
         "Version": 3,
         "Meta": {
-            "PhysicsSettingCount": len(self.Rig.SubRigs),
-            "TotalInputCount": sum((len(x.Input) for x in self.Rig.SubRigs)),
-            "TotalOutputCount": sum((len(x.Output) for x in self.Rig.SubRigs)),
-            "VertexCount": sum((len(x.Particles) for x in self.Rig.SubRigs)),
+            "PhysicsSettingCount": len(self._rig.SubRigs),
+            "TotalInputCount": sum((len(x.Input) for x in self._rig.SubRigs)),
+            "TotalOutputCount": sum((len(x.Output) for x in self._rig.SubRigs)),
+            "VertexCount": sum((len(x.Particles) for x in self._rig.SubRigs)),
             "Fps": 60,
             "EffectiveForces": {
                 "Gravity": {"X": 0, "Y": -1},
@@ -120,11 +132,21 @@ def dump(self: CubismPhysicsController):
             },
             "PhysicsDictionary": [
                 {"Id": "PhysicsSetting%d" % (i + 1), "Name": "%d" % (i + 1)}
-                for i, _ in enumerate(self.Rig.SubRigs)
+                for i, _ in enumerate(self._rig.SubRigs)
             ],
         },
-        "PhysicsSettings": self.Rig.dump(),
+        "PhysicsSettings": self._rig.dump(),
     }
+
+
+@monkey_patch(CubismRenderer)
+def __hash__(self: CubismRenderer):
+    return self._mainTexture.path_id
+
+
+@monkey_patch(CubismRenderer)
+def __eq__(self: CubismRenderer, other: CubismRenderer):
+    return self.__hash__() == other.__hash__()
 
 
 # XXX: Is monkey patching this into UnityPy a good idea?
@@ -153,12 +175,13 @@ def read_from(reader: ObjectReader, **kwargs):
                 instance = clazz(object_reader=reader, **result)
                 return instance
             else:
-                raise NotImplementedError(className)
+                logger.debug(f"Missing definitions for {fullName}, skipping.")
+                return mono
         case _:
             return reader.read(**kwargs)
 
 
-def read_from_ptr(ptr: PPtr, reader: ObjectReader):
+def read_from_ptr(ptr: PPtr[T], reader: ObjectReader) -> T:
     return read_from(ptr.deref(reader.assets_file))
 
 
@@ -185,34 +208,103 @@ def __main__():
     )
     os.makedirs(args.outdir, exist_ok=True)
     env = UnityPy.load(args.infile)
-    objs = list()
-    for reader in filter(
-        lambda reader: reader.type
-        in {
-            ClassIDType.MonoBehaviour,
-            ClassIDType.AnimationClip,
-            ClassIDType.GameObject,
-            ClassIDType.Texture2D,
-        },
-        env.objects,
-    ):
-        # XXX: Manually mach by Script ClassName
-        try:
-            obj = read_from(reader)
-            objs.append(obj)
-        except NotImplementedError as e:
-            # logger.warning(f"Skipping {e}")
-            continue
-    # fmt: off
-    # Comprehesions
-    mocs = [
-        read_from_ptr(model._moc, model)
-        for model in filter(lambda obj: isinstance(obj, CubismModel), objs)
+    objs = [
+        read_from(reader)
+        for reader in filter(
+            lambda reader: reader.type == ClassIDType.MonoBehaviour,
+            env.objects,
+        )
     ]
-    phys = [obj for obj in filter(lambda obj: isinstance(obj, CubismPhysicsController), objs)]
-    rnds = [obj for obj in filter(lambda obj: isinstance(obj, CubismRenderer), objs)]
+    candidates = [
+        read_from_ptr(obj.m_GameObject, obj)
+        for obj in filter(lambda obj: isinstance(obj, CubismPhysicsController), objs)
+    ]
+    crc_cache = dict()
+    # fmt: off
+    for OBJ in candidates:
+        OBJ: GameObject
+        components = [read_from_ptr(ptr, OBJ) for ptr in OBJ.m_Components]
+        NAME = OBJ.m_Name
+        MOC : CubismModel = next(filter(lambda x: isinstance(x, CubismModel), components), None)        
+        PHY : CubismPhysicsController = next(filter(lambda x: isinstance(x, CubismPhysicsController), components), None)
+        # ANI : Animator = next(filter(lambda x: isinstance(x, Animator), components), None)
+        # RND : CubismRenderController = next(filter(lambda x: isinstance(x, CubismRenderController), components), None)
+        logger.info(f"Processing {NAME}")
+        outdir = os.path.join(args.outdir, NAME)
+        os.makedirs(outdir, exist_ok=True)
+        metadata = {
+            "Version": 3,
+            "FileReferences": {
+                "Moc":"",
+                "Textures": [],
+                "Physics": ""
+            },
+        }
+        if MOC:
+            fname = metadata["FileReferences"]["Moc"] = f"{NAME}.moc3"
+            with open(os.path.join(outdir, fname), "wb") as f:
+                moc = read_from_ptr(MOC._moc, MOC.object_reader)
+                logger.info(".moc3: %d bytes" % f.write(moc._bytes))
+                try:
+                    parts, parameters = read_moc3(io.BytesIO(moc._bytes))
+                    for s in parts:
+                        path = "Parts/" + s
+                        crc_cache[crc32(path.encode("utf-8"))] = path
+                    for s in parameters:
+                        path = "Parameters/" + s
+                        crc_cache[crc32(path.encode("utf-8"))] = path
+                    logger.info(".moc3: %d parts, %d parameters" % (len(parts), len(parameters)))
+                except Exception as e:
+                    logger.warning("Failed to parse MOC3: %s" % e)
+                    logger.warning("This may indicate obfuscation or a different format")
+        if PHY:
+            fname = metadata["FileReferences"]["Physics"] = f"{NAME}.physics3.json"
+            with open(os.path.join(outdir, fname), "w") as f:
+                logger.info(".physics3.json: %d bytes" % f.write(json.dumps(PHY.dump(),indent=4)))
+        # Renderers are bound to the meshes in the hierarchy
+        def children_recursive(obj: GameObject):
+            transform : Transform = obj.m_Transform.read()
+            for child in transform.m_Children:
+                child = read_from_ptr(child, obj)
+                ch_obj = child.m_GameObject.read()
+                yield ch_obj
+                yield from children_recursive(ch_obj)
+        # Mark referenced textures
+        TEX = set()
+        for child in children_recursive(OBJ):
+            components = [read_from_ptr(ptr, child) for ptr in child.m_Components]
+            RND : CubismRenderer = next(filter(lambda x: isinstance(x, CubismRenderer), components), None)
+            if RND:
+                TEX.add(RND)
+        if TEX:
+            metadata["FileReferences"]["Textures"] = []
+            for tex in TEX:
+                tex : CubismRenderer
+                tex : Texture2D = read_from_ptr(tex._mainTexture, tex)                
+                path = f"Textures/{tex.m_Name}.png"
+                metadata["FileReferences"]["Textures"].append(path)                
+                path = os.path.join(outdir, path)
+                os.makedirs(os.path.dirname(path), exist_ok=True)
+                tex.image.save(path)
+                logger.info(f"[texture]: {tex.m_Name}")
+            # XXX: Lexical. But why?
+            metadata["FileReferences"]["Textures"].sort()
+        path = f"{NAME}.model3.json"
+        json.dump(metadata, open(os.path.join(outdir,path), "w"), indent=4)
+        logger.info(f"[metadata]: {path}")
     # fmt: on
-    pass
+    if not args.no_anim:
+        for reader in filter(
+            lambda reader: reader.type == ClassIDType.AnimationClip, env.objects
+        ):
+            clip = reader.read()
+            helper = AnimationHelper.from_clip(clip)
+            motion3 = to_motion3(helper, crc_cache, clip)
+            path = f"Animation/{clip.m_Name}.motion3.json"
+            logger.info(f"[motion3]: {path}")
+            path = os.path.join(args.outdir, path)
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            json.dump(motion3, open(path, "w"), indent=4)
 
 
 if __name__ == "__main__":
