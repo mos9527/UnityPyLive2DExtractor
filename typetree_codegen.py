@@ -1,7 +1,12 @@
 """Simple codegen for typetree classes
 
-limitations:
-- untested with Namespace references outside its own scope
+- Supports nested types
+- Supports inheritance
+- Automatically resolves import order and dependencies
+
+NOTE:
+- Cannot resolve namespace conflicts if the same class name is defined in multiple namespaces
+- Missing type definitions are marked with # XXX: Fallback of {org_type} and typedefed as object
 """
 
 # From https://github.com/K0lb3/UnityPy/blob/master/generators/ClassesGenerator.py

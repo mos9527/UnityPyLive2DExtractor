@@ -15,11 +15,11 @@ from . import __version__
 logger = getLogger("UnityPyLive2DExtractor")
 
 import UnityPyLive2DExtractor.generated as generated
-from .generated.Live2D.Cubism.Core import CubismMoc
 import importlib
 
 
 def read_from(reader: ObjectReader, **kwargs):
+    """Import generated classes by MonoBehavior script class type and read from reader"""
     match reader.type:
         case ClassIDType.MonoBehaviour:
             mono: MonoBehaviour = reader.read(check_read=False)
