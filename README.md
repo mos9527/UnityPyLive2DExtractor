@@ -12,7 +12,6 @@ As the name suggests, this project is heavily inspired by [Perfare/UnityLive2DEx
     ```bash
     python typetree_codegen.py type_tree_cubism.json UnityPyLive2DExtractor/generated
     ```
-    - Feel free to submit a PR into a new branch if you have found a new TypeTree that worked for you.
 - New (not necessarily better) asset discovery method. Though proven to be more reliable in some cases.
 
 ## Installation
