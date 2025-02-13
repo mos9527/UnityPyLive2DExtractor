@@ -16,5 +16,5 @@ class CubismPosePart(MonoBehaviour):
 class CubismPoseData(MonoBehaviour):
 	PosePart : PPtr[CubismPosePart]
 	Part : PPtr[CubismPart]
-	LinkParts : List[CubismPart]
+	LinkParts : List[PPtr[CubismPart]]
 	Opacity : float

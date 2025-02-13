@@ -12,6 +12,14 @@ class CubismAutoEyeBlinkInput(MonoBehaviour):
 	MaximumDeviation : float
 	Timescale : float
 @typetree_defined
+class CubismDisplayInfoParameterName(MonoBehaviour):
+	Name : str
+	DisplayName : str
+@typetree_defined
+class CubismDisplayInfoPartName(MonoBehaviour):
+	Name : str
+	DisplayName : str
+@typetree_defined
 class CubismDontMoveOnReimportAttribute(MonoBehaviour):
 	pass
 @typetree_defined
@@ -44,6 +52,9 @@ class CubismPartsInspector(MonoBehaviour):
 	pass
 @typetree_defined
 class CubismUpdateController(MonoBehaviour):
+	pass
+@typetree_defined
+class CubismUpdateExecutionOrder(MonoBehaviour):
 	pass
 @typetree_defined
 class ICubismUpdatable(MonoBehaviour):

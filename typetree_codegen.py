@@ -89,7 +89,7 @@ def typetree_defined(clazz : T) -> T:
 					sub = eval(sub) # attrs turns these into strings...why?
 				reduce_arg = getattr(sub, "__args__", [None])[0]
 				if isinstance(d[k], list):
-					if hasattr(reduce_arg, "__annotations__"):
+					if hasattr(reduce_arg, "__annotations__") or hasattr(reduce_arg, "__args__"):
 						setattr(self, k, [enusre_reserved(reduce_arg(**x)) for x in d[k]])
 					else:
 						setattr(self, k, [enusre_reserved(reduce_arg(x)) for x in d[k]])
@@ -119,7 +119,16 @@ def typetree_defined(clazz : T) -> T:
     ]
 )
 from collections import defaultdict
+from dataclasses import dataclass
 import argparse, json
+
+
+@dataclass
+class CodegenFlags:
+    pass
+
+
+FLAGS = CodegenFlags()
 
 
 def translate_name(m_Name: str, **kwargs):
@@ -137,22 +146,30 @@ logger = getLogger("codegen")
 
 
 def translate_type(
-    m_Type: str, strip=False, fallback=True, typenames: dict = dict(), **kwargs
+    m_Type: str,
+    strip=False,
+    fallback=True,
+    typenames: dict = dict(),
+    parent: str = "",
+    **kwargs,
 ):
     if m_Type in BASE_TYPE_MAP:
         return BASE_TYPE_MAP[m_Type]
     if getattr(classes, m_Type, None):
         return m_Type
     if m_Type in typenames:
-        return m_Type
+        if m_Type == parent:
+            return f'"{m_Type}"'
+        else:
+            return m_Type
     if m_Type.endswith("[]"):
-        m_Type = translate_type(m_Type[:-2], strip, fallback, typenames)
+        m_Type = translate_type(m_Type[:-2], strip, fallback, typenames, parent)
         if not strip:
             return f"List[{m_Type}]"
         else:
             return m_Type
     if m_Type.startswith("PPtr<"):
-        m_Type = translate_type(m_Type[5:-1], strip, fallback, typenames)
+        m_Type = translate_type(m_Type[5:-1], strip, fallback, typenames, parent)
         if not strip:
             return f"PPtr[{m_Type}]"
         else:
@@ -161,7 +178,10 @@ def translate_type(
         logger.warning(f"Unknown type {m_Type}, using fallback")
         return "object"
     else:
-        return m_Type
+        if m_Type == parent:
+            return f'"{m_Type}"'
+        else:
+            return m_Type
 
 
 def declare_field(name: str, type: str, org_type: str = None):
@@ -192,10 +212,11 @@ def topsort(graph: dict):
         topo.append(u)
         return True
 
+    flag = 1
     for clazz in graph:
         if not vis[clazz]:
-            dfs(clazz)
-
+            flag &= dfs(clazz)
+    assert flag, "circular dependency detected. bogus typetree dump"
     return topo
 
 
@@ -220,7 +241,7 @@ def process_namespace(
     if import_root:
         emit_line(f"from {import_root} import *")
     for clazz, parent in import_defs.items():
-        emit_line(f"from {import_root}{parent or ''} import {clazz}")
+        emit_line(f"from {import_root or '.'}{parent or ''} import {clazz}")
 
     emit_line()
     # Emit by topo order
@@ -232,6 +253,11 @@ def process_namespace(
         }
         for clazz, fields in typetree_defs.items()
     }
+    for u, vs in graph.items():
+        # This is circular - but allowed
+        # We can have a class that references itself
+        if u in vs:
+            vs.remove(u)
     topo = topsort(graph)
     clazzes = list()
 
@@ -244,6 +270,15 @@ def process_namespace(
                 f"Class {clazz} has no fields defined in TypeTree dump, skipped"
             )
             continue
+
+        def deduce_type(i: int):
+            # XXX: Upstream needs to fix this
+            if fields[i]["m_Type"].endswith("[]"):
+                assert fields[i + 1]["m_Type"] == "Array"
+                return fields[i + 3]["m_Type"] + "[]"
+            else:
+                return fields[i]["m_Type"]
+
         # Heuristic: If there is a lvl1 field, it's a subclass
         lvl1 = list(filter(lambda field: field["m_Level"] == 1, fields))
         clazz = translate_name(clazz)
@@ -264,27 +299,29 @@ def process_namespace(
                     raise RecursionError("Circular inheritance detected")
             pa_dep1 = dp[parent]
             cur_dep1 = 0
-            for i, field in enumerate(
-                filter(lambda field: field["m_Level"] == 1, fields)
+            for nth, (i, field) in enumerate(
+                filter(lambda x: x[1]["m_Level"] == 1, enumerate(fields))
             ):
-                if i < pa_dep1:
+                if nth < pa_dep1:
                     # Skip parent fields at lvl1
                     continue
+                raw_type = deduce_type(i)
                 name, type = field["m_Name"], translate_type(
-                    field["m_Type"], typenames=typetree_defs | import_defs
+                    raw_type, typenames=typetree_defs | import_defs, parent=clazz
                 )
-                emit_line(f"\t{declare_field(name, type, field['m_Type'])}")
-                clazz_fields.append((name, type, field["m_Type"]))
+                emit_line(f"\t{declare_field(name, type, raw_type)}")
+                clazz_fields.append((name, type, raw_type))
                 cur_dep1 += 1
             dp[clazz] = cur_dep1
         else:
             # No inheritance
             emit_line(f"class {clazz}:")
-            for field in fields:
+            for i, field in enumerate(fields):
+                raw_type = deduce_type(i)
                 name, type = field["m_Name"], translate_type(
-                    field["m_Type"], typenames=typetree_defs | import_defs
+                    raw_type, typenames=typetree_defs | import_defs, parent=clazz
                 )
-                emit_line(f"\t{declare_field(name, type, field['m_Type'])}")
+                emit_line(f"\t{declare_field(name, type, raw_type)}")
                 clazz_fields.append((name, type))
         if not clazz_fields:
             # Empty class. Consider MRO
@@ -356,16 +393,16 @@ def __main__():
     ):
         # CubismTaskHandler -> generated/__init__.py
         # Live2D.Cubism.Core.CubismMoc -> generated/Live2D/Cubism/Core/__init__.py
+        deps = {k: namespacesT[k] for k in namespaceDeps[namespace]}
+        deps = dict(sorted(deps.items()))
         if namespace:
             ndots = namespace.count(".") + 2
             dotss = "." * ndots
             f = __open(os.path.join(*namespace.split("."), "__init__.py"))
-            deps = {k: namespacesT[k] for k in namespaceDeps[namespace]}
-            deps = dict(sorted(deps.items()))
             process_namespace(namespace, typetree_defs, f, dotss, deps)
         else:
             f = __open("__init__.py")
-            process_namespace(namespace, typetree_defs, f)
+            process_namespace(namespace, typetree_defs, f, import_defs=deps)
     __open("__init__.py").write(
         "\nTYPETREE_DEFS = " + json.dumps(TYPETREE_DEFS, indent=4)
     )

@@ -10,8 +10,12 @@ class ArrayExtensionMethods(MonoBehaviour):
 class ComponentExtensionMethods(MonoBehaviour):
 	pass
 @typetree_defined
+class CubismCanvasInformation(MonoBehaviour):
+	pass
+@typetree_defined
 class CubismDrawable(MonoBehaviour):
 	_unmanagedIndex : int
+	_screenColor : ColorRGBA
 @typetree_defined
 class CubismDynamicDrawableData(MonoBehaviour):
 	pass
@@ -20,7 +24,7 @@ class CubismLogging(MonoBehaviour):
 	pass
 @typetree_defined
 class CubismMoc(MonoBehaviour):
-	_bytes : bytes
+	_bytes : List[int]
 @typetree_defined
 class CubismModel(MonoBehaviour):
 	_moc : PPtr[CubismMoc]

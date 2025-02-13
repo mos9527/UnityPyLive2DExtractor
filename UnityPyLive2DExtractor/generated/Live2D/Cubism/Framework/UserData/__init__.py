@@ -9,6 +9,7 @@ class CubismUserDataBody(MonoBehaviour):
 	Value : str
 @typetree_defined
 class CubismUserDataTag(MonoBehaviour):
+	_value : str
 	_body : CubismUserDataBody
 @typetree_defined
 class CubismUserDataTargetType(MonoBehaviour):

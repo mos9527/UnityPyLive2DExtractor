@@ -6,6 +6,8 @@ from ..... import *
 @typetree_defined
 class CubismFadeMotionData(MonoBehaviour):
 	MotionName : str
+	ModelFadeInTime : float
+	ModelFadeOutTime : float
 	FadeInTime : float
 	FadeOutTime : float
 	ParameterIds : List[str]
@@ -16,7 +18,7 @@ class CubismFadeMotionData(MonoBehaviour):
 @typetree_defined
 class CubismFadeMotionList(MonoBehaviour):
 	MotionInstanceIds : List[int]
-	CubismFadeMotionObjects : List[CubismFadeMotionData]
+	CubismFadeMotionObjects : List[PPtr[CubismFadeMotionData]]
 @typetree_defined
 class CubismFadeController(MonoBehaviour):
 	CubismFadeMotionList : PPtr[CubismFadeMotionList]
@@ -33,6 +35,7 @@ class CubismFadePlayingMotion(MonoBehaviour):
 	FadeInStartTime : float
 	Speed : float
 	Motion : PPtr[CubismFadeMotionData]
+	IsLooping : bool
 @typetree_defined
 class CubismFadeStateObserver(MonoBehaviour):
 	pass

@@ -7,6 +7,12 @@ General purpose [Live2D](https://www.live2d.com/) Asset recovery tool built w/ [
 
 As the name suggests, this project is heavily inspired by [Perfare/UnityLive2DExtractor](https://github.com/Perfare/UnityLive2DExtractor). With a few key differences:
 - All Live2D types are implemented with [dumped TypeTree](https://github.com/mos9527/UnityPyLive2DExtractor/blob/main/external/typetree_cubism.json) and [generated types](https://github.com/mos9527/UnityPyLive2DExtractor/blob/main/typetree_codegen.py). This should help with compatibility issues.
+    - Do note, however, that you may need to update the TypeTree if the Live2D version changes.
+    - Generate the TypeTree with [typetree_codegen](https://github.com/mos9527/UnityPyLive2DExtractor/blob/main/typetree_codegen.py) and replace the existing TypeTree at `UnityPyLive2DExtractor/generated`
+    ```bash
+    python typetree_codegen.py type_tree_cubism.json UnityPyLive2DExtractor/generated
+    ```
+    - Feel free to submit a PR into a new branch if you have found a new TypeTree that worked for you.
 - New (not necessarily better) asset discovery method. Though proven to be more reliable in some cases.
 
 ## Installation

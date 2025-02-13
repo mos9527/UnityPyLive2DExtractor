@@ -2,36 +2,66 @@
 # Python definition for Live2D.Cubism.Framework.Json
 
 from ..... import *
+from ..... import PhysicsDictionaryItem
+from ..... import SerializableCombinedParameterIds
+from ..... import SerializableCurve
+from ..... import SerializableEffectiveForces
+from ..... import SerializableExpression
+from ..... import SerializableExpressionParameter
+from ..... import SerializableFileReferences
+from ..... import SerializableGroup
+from ..... import SerializableHitArea
+from ..... import SerializableInput
+from ..... import SerializableMeta
+from ..... import SerializableMotions
+from ..... import SerializableNormalization
+from ..... import SerializableNormalizationValue
+from ..... import SerializableOutput
+from ..... import SerializableParameter
+from ..... import SerializableParameterGroups
+from ..... import SerializableParameters
+from ..... import SerializableParts
+from ..... import SerializablePhysicsSettings
+from ..... import SerializableUserData
+from ..... import SerializableVector2
+from ..... import SerializableVertex
 
 @typetree_defined
 class CubismBuiltinPickers(MonoBehaviour):
 	pass
 @typetree_defined
+class CubismDisplayInfo3Json(MonoBehaviour):
+	Version : int
+	Parameters : List[SerializableParameters]
+	ParameterGroups : List[SerializableParameterGroups]
+	Parts : List[SerializableParts]
+	CombinedParameters : List[SerializableCombinedParameterIds]
+@typetree_defined
 class CubismExp3Json(MonoBehaviour):
 	Type : str
 	FadeInTime : float
 	FadeOutTime : float
-	Parameters : List[object] # XXX: Fallback of SerializableExpressionParameter[]
+	Parameters : List[SerializableExpressionParameter]
 @typetree_defined
 class CubismJsonParser(MonoBehaviour):
 	pass
 @typetree_defined
 class CubismModel3Json(MonoBehaviour):
 	Version : int
-	FileReferences : object # XXX: Fallback of SerializableFileReferences
-	Groups : List[object] # XXX: Fallback of SerializableGroup[]
-	HitAreas : List[object] # XXX: Fallback of SerializableHitArea[]
+	FileReferences : SerializableFileReferences
+	Groups : List[SerializableGroup]
+	HitAreas : List[SerializableHitArea]
 @typetree_defined
 class CubismMotion3Json(MonoBehaviour):
 	Version : int
-	Meta : object # XXX: Fallback of SerializableMeta
-	Curves : List[object] # XXX: Fallback of SerializableCurve[]
-	UserData : List[object] # XXX: Fallback of SerializableUserData[]
+	Meta : SerializableMeta
+	Curves : List[SerializableCurve]
+	UserData : List[SerializableUserData]
 @typetree_defined
 class CubismPhysics3Json(MonoBehaviour):
 	Version : int
-	Meta : object # XXX: Fallback of SerializableMeta
-	PhysicsSettings : List[object] # XXX: Fallback of SerializablePhysicsSettings[]
+	Meta : SerializableMeta
+	PhysicsSettings : List[SerializablePhysicsSettings]
 @typetree_defined
 class CubismPose3Json(MonoBehaviour):
 	Type : str
@@ -39,8 +69,8 @@ class CubismPose3Json(MonoBehaviour):
 @typetree_defined
 class CubismUserData3Json(MonoBehaviour):
 	Version : int
-	Meta : object # XXX: Fallback of SerializableMeta
-	UserData : List[object] # XXX: Fallback of SerializableUserData[]
+	Meta : SerializableMeta
+	UserData : List[SerializableUserData]
 @typetree_defined
 class Value(MonoBehaviour):
 	pass

@@ -9,7 +9,6 @@ from UnityPy.classes import (
     Transform,
     PPtr,
     Texture2D,
-    AnimationClip,
 )
 from UnityPy.enums import ClassIDType
 from UnityPy.files import ObjectReader
@@ -149,6 +148,17 @@ def __eq__(self: CubismRenderer, other: CubismRenderer):
     return self.__hash__() == other.__hash__()
 
 
+from dataclasses import dataclass
+
+
+@dataclass
+class ExtractorFlags:
+    live2d_variant: str = "cubism"
+
+
+FLAGS = ExtractorFlags()
+
+
 # XXX: Is monkey patching this into UnityPy a good idea?
 def read_from(reader: ObjectReader, **kwargs):
     """Import generated classes by MonoBehavior script class type and read from reader"""
@@ -207,6 +217,8 @@ def __main__():
         isatty=True,
     )
     os.makedirs(args.outdir, exist_ok=True)
+    logger.info("UnityPyLive2D Extractor v%d.%d.%d" % __version__)
+    logger.info("Loading %s" % args.infile)
     env = UnityPy.load(args.infile)
     objs = [
         read_from(reader)
@@ -215,9 +227,10 @@ def __main__():
             env.objects,
         )
     ]
+    logger.info("MonoBehaviours: %d" % len(objs))
     candidates = [
         read_from_ptr(obj.m_GameObject, obj)
-        for obj in filter(lambda obj: isinstance(obj, CubismPhysicsController), objs)
+        for obj in filter(lambda obj: isinstance(obj, CubismModel), objs)
     ]
     crc_cache = dict()
     # fmt: off
@@ -244,9 +257,10 @@ def __main__():
             fname = metadata["FileReferences"]["Moc"] = f"{NAME}.moc3"
             with open(os.path.join(outdir, fname), "wb") as f:
                 moc = read_from_ptr(MOC._moc, MOC.object_reader)
-                logger.info(".moc3: %d bytes" % f.write(moc._bytes))
+                moc = bytes(moc._bytes)
+                logger.info(".moc3: %d bytes" % f.write(moc))
                 try:
-                    parts, parameters = read_moc3(io.BytesIO(moc._bytes))
+                    parts, parameters = read_moc3(io.BytesIO(moc))
                     for s in parts:
                         path = "Parts/" + s
                         crc_cache[crc32(path.encode("utf-8"))] = path

@@ -4,20 +4,28 @@
 from ..... import *
 from .....Live2D.Cubism.Core import CubismParameter
 from .....Live2D.Cubism.Framework import CubismParameterBlendMode
+from ..... import SerializableExpressionParameter
 
 @typetree_defined
 class CubismExpressionData(MonoBehaviour):
 	Type : str
 	FadeInTime : float
 	FadeOutTime : float
-	Parameters : List[object] # XXX: Fallback of SerializableExpressionParameter[]
+	Parameters : List[SerializableExpressionParameter]
 @typetree_defined
 class CubismExpressionList(MonoBehaviour):
-	CubismExpressionObjects : List[CubismExpressionData]
+	CubismExpressionObjects : List[PPtr[CubismExpressionData]]
 @typetree_defined
 class CubismExpressionController(MonoBehaviour):
 	ExpressionsList : PPtr[CubismExpressionList]
+	UseLegacyBlendCalculation : bool
 	CurrentExpressionIndex : int
+@typetree_defined
+class CubismExpressionParameterValue(MonoBehaviour):
+	Parameter : PPtr[CubismParameter]
+	AdditiveValue : float
+	MultiplyValue : float
+	OverwriteValue : float
 @typetree_defined
 class CubismPlayingExpression(MonoBehaviour):
 	Type : str
@@ -25,7 +33,8 @@ class CubismPlayingExpression(MonoBehaviour):
 	FadeOutTime : float
 	Weight : float
 	ExpressionUserTime : float
+	ExpressionStartTime : float
 	ExpressionEndTime : float
-	Destinations : List[CubismParameter]
+	Destinations : List[PPtr[CubismParameter]]
 	Value : List[float]
-	Blend : List[CubismParameterBlendMode]
+	Blend : List[int]

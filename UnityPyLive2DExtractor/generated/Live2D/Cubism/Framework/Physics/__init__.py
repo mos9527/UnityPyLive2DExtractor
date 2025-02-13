@@ -41,6 +41,7 @@ class CubismPhysicsParticle(MonoBehaviour):
 	Radius : float
 @typetree_defined
 class CubismPhysicsSubRig(MonoBehaviour):
+	Name : str
 	Input : List[CubismPhysicsInput]
 	Output : List[CubismPhysicsOutput]
 	Particles : List[CubismPhysicsParticle]
@@ -48,6 +49,9 @@ class CubismPhysicsSubRig(MonoBehaviour):
 @typetree_defined
 class CubismPhysicsRig(MonoBehaviour):
 	SubRigs : List[CubismPhysicsSubRig]
+	Gravity : Vector2f
+	Wind : Vector2f
+	Fps : float
 @typetree_defined
 class CubismPhysicsController(MonoBehaviour):
 	_rig : CubismPhysicsRig

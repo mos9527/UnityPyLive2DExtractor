@@ -10,6 +10,7 @@ class CubismMaskCommandBuffer(MonoBehaviour):
 class CubismMaskTexture(MonoBehaviour):
 	_size : int
 	_subdivisions : int
+	_renderTextureCount : int
 @typetree_defined
 class CubismMaskController(MonoBehaviour):
 	_maskTexture : PPtr[CubismMaskTexture]
@@ -31,6 +32,9 @@ class CubismMaskTile(MonoBehaviour):
 	Column : float
 	Row : float
 	Size : float
+	RenderTextureIndex : int
+	HeadOfChannelsIndex : int
+	Index : int
 @typetree_defined
 class CubismMaskTilePool(MonoBehaviour):
 	pass

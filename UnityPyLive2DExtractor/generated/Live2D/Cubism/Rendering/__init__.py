@@ -13,26 +13,44 @@ class CubismBuiltinMaterials(MonoBehaviour):
 class CubismBuiltinShaders(MonoBehaviour):
 	pass
 @typetree_defined
-class CubismRenderController(MonoBehaviour):
-	Opacity : float
-	_lastOpacity : float
-	_sortingLayerId : int
-	_sortingMode : int
-	_sortingOrder : int
-	CameraToFace : PPtr[Camera]
-	_drawOrderHandler : PPtr[Object]
-	_opacityHandler : PPtr[Object]
-	_depthOffset : float
-@typetree_defined
 class CubismRenderer(MonoBehaviour):
 	_localSortingOrder : int
 	_color : ColorRGBA
+	_isOverwrittenDrawableMultiplyColors : bool
+	_isOverwrittenDrawableScreenColors : bool
+	_multiplyColor : ColorRGBA
+	_screenColor : ColorRGBA
 	_mainTexture : PPtr[Texture2D]
 	_sortingMode : int
 	_sortingOrder : int
 	_renderOrder : int
 	_depthOffset : float
 	_opacity : float
+@typetree_defined
+class CubismPartColorsEditor(MonoBehaviour):
+	_childDrawableRenderers : List[PPtr[CubismRenderer]]
+	_childParts : List[PPtr["CubismPartColorsEditor"]]
+	_isOverwrittenPartMultiplyColors : bool
+	_isOverwrittenPartScreenColors : bool
+	_multiplyColor : ColorRGBA
+	_screenColor : ColorRGBA
+@typetree_defined
+class CubismRenderController(MonoBehaviour):
+	Opacity : float
+	_lastOpacity : float
+	_isOverwrittenModelMultiplyColors : bool
+	_isOverwrittenModelScreenColors : bool
+	_modelMultiplyColor : ColorRGBA
+	_modelScreenColor : ColorRGBA
+	_sortingLayerId : int
+	_sortingMode : int
+	_sortingOrder : int
+	CameraToFace : PPtr[Camera]
+	_drawOrderHandler : PPtr[Object]
+	_opacityHandler : PPtr[Object]
+	_multiplyColorHandler : PPtr[Object]
+	_screenColorHandler : PPtr[Object]
+	_depthOffset : float
 @typetree_defined
 class CubismShaderVariables(MonoBehaviour):
 	pass
@@ -41,6 +59,9 @@ class CubismSortingMode(MonoBehaviour):
 	value__ : int
 @typetree_defined
 class CubismSortingModeExtensionMethods(MonoBehaviour):
+	pass
+@typetree_defined
+class ICubismBlendColorHandler(MonoBehaviour):
 	pass
 @typetree_defined
 class ICubismDrawOrderHandler(MonoBehaviour):

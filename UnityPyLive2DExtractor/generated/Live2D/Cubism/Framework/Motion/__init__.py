@@ -10,5 +10,8 @@ class CubismMotionController(MonoBehaviour):
 class CubismMotionLayer(MonoBehaviour):
 	pass
 @typetree_defined
+class CubismMotionPriority(MonoBehaviour):
+	pass
+@typetree_defined
 class CubismMotionState(MonoBehaviour):
 	pass
