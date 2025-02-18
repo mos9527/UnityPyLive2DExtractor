@@ -298,7 +298,7 @@ def process_namespace(
                 else:
                     raise RecursionError("Circular inheritance detected")
             pa_dep1 = dp[parent]
-            cur_dep1 = 0
+            cur_dep1 = pa_dep1
             for nth, (i, field) in enumerate(
                 filter(lambda x: x[1]["m_Level"] == 1, enumerate(fields))
             ):
