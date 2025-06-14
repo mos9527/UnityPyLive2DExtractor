@@ -29,12 +29,12 @@ def UTTCGen(fullname: str, typetree: dict):
                     reduce_arg = getattr(sub, "__args__", [None])[0]
                     if k in REFERENCED_ARGS: # Directly refcounted
                         reduce_arg = sub = lambda x: x                         
-                    if isinstance(d[k], list):
+                    if reduce_arg is not None and isinstance(d[k], list):
                         if hasattr(reduce_arg, "__annotations__"):
                             setattr(self, k, [reduce_arg(**x) for x in d[k]])
                         else:
                             setattr(self, k, [reduce_arg(x) for x in d[k]])
-                    elif isinstance(d[k], dict) and hasattr(sub, "__annotations__"):
+                    elif reduce_arg is not None and isinstance(d[k], dict) and hasattr(sub, "__annotations__"):
                         setattr(self, k, sub(**d[k]))
                     else:
                         if isinstance(d[k], dict):
