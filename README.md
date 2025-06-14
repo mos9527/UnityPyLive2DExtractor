@@ -9,9 +9,7 @@ As the name suggests, this project is heavily inspired by [Perfare/UnityLive2DEx
 - All Live2D types are implemented with [dumped TypeTree](https://github.com/mos9527/UnityPyLive2DExtractor/blob/main/external/typetree_cubism.json) and [generated types](https://github.com/mos9527/UnityPyLive2DExtractor/blob/main/typetree_codegen.py). This should help with compatibility issues.
     - Do note, however, that you may need to update the TypeTree if the Live2D version changes.
     - Generate the TypeTree with [UnityPyTypetreeCodegen](https://github.com/mos9527/UnityPyTypetreeCodegen) and replace the existing TypeTree at `UnityPyLive2DExtractor/generated`
-    ```bash
-    UnityPyTypetreeCodegen --json external/typetree_cubism.json --outdir UnityPyLive2DExtractor/generated
-    ```
+
 - New (not necessarily better) asset discovery method. Though proven to be more reliable in some cases.
 
 ## Installation
