@@ -22,7 +22,7 @@ T = TypeVar("T")
 logger = getLogger("UnityPyLive2DExtractor")
 
 from UnityPyLive2DExtractor import __version__
-from UnityPyLive2DExtractor.generated import TYPETREE_DEFS
+from UnityPyLive2DExtractor.generated import UTTCGen_AsInstance, UTTCGen_GetClass
 from UnityPyLive2DExtractor.generated.Live2D.Cubism.Core import CubismModel
 from UnityPyLive2DExtractor.generated.Live2D.Cubism.Rendering import CubismRenderer
 from UnityPyLive2DExtractor.generated.Live2D.Cubism.Framework.Physics import (
@@ -41,7 +41,6 @@ from sssekai.unity.AnimationClip import AnimationHelper
 
 
 def monkey_patch(cls):
-    """ooh ooh aah aah"""
 
     def wrapper(func):
         setattr(cls, func.__name__, func)
@@ -174,15 +173,10 @@ def read_from(reader: ObjectReader, **kwargs):
                 fullName = script.m_Namespace + "." + className
             else:
                 fullName = className
-            typetree = TYPETREE_DEFS.get(fullName, None)
+            clazz = UTTCGen_GetClass(fullName)
 
-            if typetree:
-                result = reader.read_typetree(typetree)
-                nameSpace = importlib.import_module(
-                    f".generated.{nameSpace}", package="UnityPyLive2DExtractor"
-                )
-                clazz = getattr(nameSpace, className, None)
-                instance = clazz(object_reader=reader, **result)
+            if clazz:
+                instance = UTTCGen_AsInstance(clazz, reader)
                 return instance
             else:
                 logger.debug(f"Missing definitions for {fullName}, skipping.")
